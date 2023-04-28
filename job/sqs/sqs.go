@@ -119,11 +119,6 @@ func (q *Queue) Pull(ctx context.Context, handle func(ctx context.Context, msg *
 	return q.deleteMessage(ctx, msg)
 }
 
-// Work the queue
-func (q *Queue) Work(ctx context.Context, handler job.Handler) error {
-	return job.Loop(ctx, q, handler)
-}
-
 func (q *Queue) Worker(handler job.Handler) job.Worker {
 	return job.Looper(q, handler)
 }
