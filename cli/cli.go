@@ -65,14 +65,18 @@ func (c *CLI) Signals(signals ...os.Signal) *CLI {
 }
 
 // TODO: rename
-type User interface {
-	Use(cmd Command)
-	Run(ctx context.Context) error
+// type User interface {
+// 	Use(cmd Command)
+// 	Run(ctx context.Context) error
+// }
+
+func (c *CLI) Mounter(m Mounter) {
+	m.Mount(c)
 }
 
-func (c *CLI) Use(name string, user User) {
-	c.subcommand.Use(name, user)
-}
+// func (c *CLI) Use(name string, user User) {
+// 	c.subcommand.Use(name, user)
+// }
 
 func (c *CLI) Parse(ctx context.Context, args ...string) error {
 	// Setup the context

@@ -16,7 +16,8 @@ type Command interface {
 	Run(fn func(ctx context.Context) error)
 	Advanced() Command
 	Hidden() Command
-	Use(name string, user User)
+	Mount(mounter Mounter)
+	// Use(name string, user User)
 }
 
 type subcommand struct {
@@ -89,11 +90,19 @@ func (c *subcommand) Hidden() Command {
 	return c
 }
 
-func (c *subcommand) Use(name string, user User) {
-	cmd := c.Command(name, "")
-	user.Use(cmd)
-	cmd.Run(user.Run)
+type Mounter interface {
+	Mount(cmd Command)
 }
+
+func (c *subcommand) Mount(mounter Mounter) {
+	mounter.Mount(c)
+}
+
+// func (c *subcommand) Use(name string, user User) {
+// 	cmd := c.Command(name, "")
+// 	user.Use(cmd)
+// 	cmd.Run(user.Run)
+// }
 
 func (c *subcommand) extract(fset *flag.FlagSet, arguments []string) (args []string, err error) {
 	for len(arguments) > 0 {
