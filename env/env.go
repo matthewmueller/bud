@@ -9,6 +9,93 @@ import (
 	"github.com/matthewmueller/gotext"
 )
 
+// func Default[Env any](envmap Map[Env]) Loadable[Env] {
+// 	return &loadable[Env]{envmap}
+// }
+
+// type loadable[Env any] struct {
+// 	envmap Map[Env]
+// }
+
+// func (l *loadable[Env]) Load() (*Env, error) {
+// 	return l.envmap.Load(os.Getenv("BUD_ENV"))
+// 	// return l.env, nil
+// }
+
+const (
+	Development = "development"
+	Test        = "test"
+	Preview     = "preview"
+	Production  = "production"
+)
+
+var env string
+
+func getEnv() string {
+	if env != "" {
+		return env
+	}
+	env = os.Getenv("ENV")
+	if env == "" {
+		env = Development
+	}
+	return env
+}
+
+func Is(name string) bool {
+	return getEnv() == name
+}
+
+func IsDevelopment() bool {
+	return Is(Development)
+}
+
+func IsTest() bool {
+	return Is(Test)
+}
+
+func IsPreview() bool {
+	return Is(Preview)
+}
+
+func IsProduction() bool {
+	return Is(Production)
+}
+
+type Map[Env any] map[string]func(*Env) error
+
+func (m Map[Env]) MustLoad(name string) *Env {
+	env, err := m.Load(name)
+	if err != nil {
+		panic(err)
+	}
+	return env
+}
+
+// TODO: this is is incomplete
+func (m Map[Env]) Load(name string) (*Env, error) {
+	if name == "" {
+		// TODO: pick first alphabetically
+		name = "development"
+	}
+	var env Env
+	if err := defaultLoader.Load(&env); err != nil {
+		return nil, err
+	}
+	fn, ok := m[name]
+	if !ok {
+		return nil, fmt.Errorf("env: unknown environment %q", name)
+	}
+	if err := fn(&env); err != nil {
+		return nil, err
+	}
+	return &env, nil
+}
+
+// type Loadable[Env any] interface {
+// 	Load() (*Env, error)
+// }
+
 var defaultLoader = &Loader{
 	GetEnv: os.Getenv,
 	Method: func() string {

@@ -13,6 +13,7 @@ import (
 
 // Interface for the router
 type Interface interface {
+	http.Handler
 	Set(method, route string, handler http.Handler) error
 	Get(route string, handler http.Handler) error
 	Post(route string, handler http.Handler) error

@@ -2,18 +2,99 @@ package web
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net"
 	"net/http"
+	"os"
 
+	"github.com/livebud/buddy/middleware"
+
+	"github.com/livebud/buddy/internal/signals"
+	"github.com/livebud/buddy/internal/socket"
 	"github.com/livebud/buddy/request"
+	"github.com/livebud/buddy/router"
 	"github.com/livebud/buddy/view"
 )
 
-type Server interface {
-	http.Handler
-	Serve(ctx context.Context, ln net.Listener) error
-	Listen(ctx context.Context, address string) error
+type Handler = http.Handler
+
+type Server http.Server
+
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.Handler.ServeHTTP(w, r)
 }
+
+func (s *Server) Serve(ctx context.Context, ln net.Listener) error {
+	return Serve(ctx, (*http.Server)(s), ln)
+}
+
+func (s *Server) Listen(ctx context.Context, address string) error {
+	ln, err := socket.Listen(address)
+	if err != nil {
+		return err
+	}
+	return s.Serve(ctx, ln)
+}
+
+// Serve the handler at address
+func Serve(ctx context.Context, server *http.Server, ln net.Listener) error {
+	// Make the server shutdownable
+	shutdown := shutdown(ctx, server)
+	// Serve requests
+	if err := server.Serve(ln); err != nil {
+		if !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+	}
+	// Handle any errors that occurred while shutting down
+	if err := <-shutdown; err != nil {
+		if !errors.Is(err, context.Canceled) {
+			return err
+		}
+	}
+	return nil
+}
+
+// Shutdown the server when the context is canceled
+func shutdown(ctx context.Context, server *http.Server) <-chan error {
+	shutdown := make(chan error, 1)
+	go func() {
+		<-ctx.Done()
+		// Wait for one more interrupt to force an immediate shutdown
+		forceCtx := signals.Trap(context.Background(), os.Interrupt)
+		if err := server.Shutdown(forceCtx); err != nil {
+			shutdown <- err
+		}
+		close(shutdown)
+	}()
+	return shutdown
+}
+
+// Format a listener
+func Format(l net.Listener) string {
+	address := l.Addr().String()
+	if l.Addr().Network() == "unix" {
+		return address
+	}
+	host, port, err := net.SplitHostPort(address)
+	if err != nil {
+		// Give up trying to format.
+		// TODO: figure out if this can occur.
+		return address
+	}
+	// https://serverfault.com/a/444557
+	if host == "::" {
+		host = "0.0.0.0"
+	}
+	return fmt.Sprintf("http://%s:%s", host, port)
+}
+
+// type Server interface {
+// 	http.Handler
+// 	Serve(ctx context.Context, ln net.Listener) error
+// 	Listen(ctx context.Context, address string) error
+// }
 
 type Request[In any] struct {
 	Params In
@@ -36,16 +117,20 @@ func (v *Viewer[Out]) Render(out Out) error {
 	return nil
 }
 
-func NewRouter() *Router {
-	return &Router{}
-}
+// func NewRouter() *Router {
+// 	return &Router{}
+// }
 
-type Router struct {
-}
+type Router = router.Interface
 
-func (r *Router) Get(path string) *Route[any, any] {
-	return &Route[any, any]{}
-}
+// type Router struct {
+// }
+
+// func (r *Router) Get(path string) *Route[any, any] {
+// 	return &Route[any, any]{}
+// }
+
+type Middleware = middleware.Middleware
 
 type Route[In, Out any] struct {
 }

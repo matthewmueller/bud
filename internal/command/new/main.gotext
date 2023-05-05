@@ -1,0 +1,18 @@
+package main
+
+import (
+	"context"
+	"os"
+
+	"github.com/livebud/buddy/cli"
+	"github.com/livebud/buddy/program"
+)
+
+func main() {
+	os.Exit(program.Run(run))
+}
+
+func run(ctx context.Context, args ...string) error {
+	cmd := cli.New(`{{ $.Name }}`, `{{ $.Desc }}`)
+	return cmd.Parse(ctx, args...)
+}

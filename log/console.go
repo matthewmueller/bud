@@ -21,8 +21,8 @@ func Default() Log {
 	return New(Filter(InfoLevel, Console(color.Default(), os.Stderr)))
 }
 
-// Load the logger with a given filter
-func Load(filter string) (Log, error) {
+// Parse the logger with a given filter
+func Parse(filter string) (Log, error) {
 	level, err := ParseLevel(filter)
 	if err != nil {
 		return nil, err

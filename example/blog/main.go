@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 
-	"github.com/livebud/buddy/app"
 	"github.com/livebud/buddy/cli"
 	"github.com/livebud/buddy/example/blog/internal/command/routes"
 	"github.com/livebud/buddy/example/blog/internal/command/serve"
+	"github.com/livebud/buddy/program"
 )
 
 func main() {
-	app.Run(run)
+	program.Run(run)
 }
 
 func run(ctx context.Context, args ...string) error {
