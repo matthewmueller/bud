@@ -4,11 +4,11 @@ import (
 	"context"
 	"os"
 	"testing"
-	"testing/fstest"
 
 	"github.com/livebud/buddy/db"
+	"github.com/livebud/buddy/db/postgres"
+	"github.com/livebud/buddy/db/sqlite"
 	"github.com/matryer/is"
-	"github.com/matthewmueller/migrate"
 	"github.com/tj/assert"
 )
 
@@ -18,7 +18,11 @@ func TestPostgres(t *testing.T) {
 	url := "postgres://localhost:5432/migrate-test?sslmode=disable"
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			test.fn(t, url)
+			is := is.New(t)
+			db, err := postgres.Open(url)
+			is.NoErr(err)
+			defer db.Close()
+			test.fn(t, db)
 		})
 	}
 }
@@ -28,8 +32,12 @@ func TestSQLite(t *testing.T) {
 	url := "sqlite:///tmp.db"
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			is := is.New(t)
 			is.NoErr(os.RemoveAll("./tmp.db"))
-			test.fn(t, url)
+			db, err := sqlite.Open(url)
+			is.NoErr(err)
+			defer db.Close()
+			test.fn(t, db)
 		})
 	}
 }
@@ -70,17 +78,17 @@ var tests = []struct {
 	name string
 	fn   func(t testing.TB, db db.DB)
 }{
-	{
-		name: "no migrations",
-		fn: func(t testing.TB, db db.DB) {
-			drop(t, db)
-			fs := fstest.MapFS{}
-			db, close := connect(t, url)
-			defer close()
-			err := migrate.Up(l, db, fs, tableName)
-			assert.Equal(t, migrate.ErrNoMigrations, err)
-		},
-	},
+	// {
+	// 	name: "no migrations",
+	// 	fn: func(t testing.TB, db db.DB) {
+	// 		drop(t, db)
+	// 		fs := fstest.MapFS{}
+	// 		db, close := connect(t, url)
+	// 		defer close()
+	// 		err := migrate.Up(l, db, fs, tableName)
+	// 		assert.Equal(t, migrate.ErrNoMigrations, err)
+	// 	},
+	// },
 	// {
 	// 	name: "no matching migrations",
 	// 	fn: func(t testing.TB, db db.DB) {

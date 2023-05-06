@@ -7,7 +7,7 @@ import (
 	"github.com/livebud/buddy/db"
 )
 
-func Open(url string) (*sql.DB, error) {
+func Open(url string) (db.DB, error) {
 	return sql.Open("sqlite", url)
 }
 

@@ -9,6 +9,7 @@ import (
 type DB interface {
 	Stmt
 	BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
+	Close() error
 }
 
 // Stmt is a sql prepared statement
@@ -31,7 +32,7 @@ type Rows interface {
 	Close() error
 	Err() error
 	Next() bool
-	Scan(dest ...interface{}) error
+	Row
 }
 
 // Rows is a result for for sql.QueryRow results
