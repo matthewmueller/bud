@@ -3,7 +3,7 @@ package color_test
 import (
 	"testing"
 
-	"github.com/livebud/buddy/internal/color"
+	"github.com/matthewmueller/bud/internal/color"
 	"github.com/matryer/is"
 )
 

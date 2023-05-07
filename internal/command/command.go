@@ -3,8 +3,8 @@ package command
 import (
 	"os"
 
-	"github.com/livebud/buddy/internal/shell"
-	"github.com/livebud/buddy/log"
+	"github.com/matthewmueller/bud/internal/shell"
+	"github.com/matthewmueller/bud/log"
 )
 
 type Command struct {

@@ -3,7 +3,7 @@ package secretbox
 import (
 	"fmt"
 
-	"github.com/livebud/buddy/cipher"
+	"github.com/matthewmueller/bud/cipher"
 	"golang.org/x/crypto/nacl/secretbox"
 )
 

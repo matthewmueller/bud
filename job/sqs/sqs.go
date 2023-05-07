@@ -9,8 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
-	"github.com/livebud/buddy/job"
-	"github.com/livebud/buddy/log"
+	"github.com/matthewmueller/bud/job"
+	"github.com/matthewmueller/bud/log"
 )
 
 // New SQS queue

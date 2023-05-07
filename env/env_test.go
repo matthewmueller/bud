@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/livebud/buddy/env"
+	"github.com/matthewmueller/bud/env"
 	"github.com/matryer/is"
 )
 

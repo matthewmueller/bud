@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/livebud/buddy/middleware"
+	"github.com/matthewmueller/bud/middleware"
 )
 
 type contextKey string

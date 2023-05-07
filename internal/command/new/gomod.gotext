@@ -2,8 +2,8 @@ module {{ $.Module }}
 
 go {{ $.GoVersion}}
 
-require github.com/livebud/buddy v0.0.0
+require github.com/matthewmueller/bud v0.0.0
 
 {{- if $.ReplaceBud }}
-replace github.com/livebud/buddy => {{ $.ReplaceBud }}
+replace github.com/matthewmueller/bud => {{ $.ReplaceBud }}
 {{- end }}

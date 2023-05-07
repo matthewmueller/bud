@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/livebud/buddy/internal/task"
-	"github.com/livebud/buddy/log"
+	"github.com/matthewmueller/bud/internal/task"
+	"github.com/matthewmueller/bud/log"
 )
 
 func New(log log.Log, path string, data []byte, force bool) *Task {

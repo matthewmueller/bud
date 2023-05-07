@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/livebud/buddy/cipher"
-	"github.com/livebud/buddy/middleware"
+	"github.com/matthewmueller/bud/cipher"
+	"github.com/matthewmueller/bud/middleware"
 )
 
 type Middleware = middleware.Middleware
@@ -32,6 +32,7 @@ func New[Session any](cipher cipher.Cipher, store Store) Middleware {
 					Expires:  time.Now().Add(24 * time.Hour),
 				}
 				session := new(Session)
+				_ = session
 				// TODO: short-circuit because we wouldn't have a session if we don't
 				// have a cookie
 			}
@@ -44,7 +45,7 @@ func New[Session any](cipher cipher.Cipher, store Store) Middleware {
 					return
 				}
 				// session = NewSession()
-				_ = session
+				_ = sessionRaw
 			}
 			// fmt.Println("got c", )
 		})

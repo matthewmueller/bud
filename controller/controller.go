@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/livebud/buddy/view"
+	"github.com/matthewmueller/bud/view"
 )
 
 // func New(view view.Viewer) *Controller {

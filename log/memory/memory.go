@@ -1,6 +1,6 @@
 package memory
 
-import log "github.com/livebud/buddy/log"
+import log "github.com/matthewmueller/bud/log"
 
 func New() *Handler {
 	return &Handler{}

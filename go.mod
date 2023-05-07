@@ -1,4 +1,4 @@
-module github.com/livebud/buddy
+module github.com/matthewmueller/bud
 
 go 1.20
 

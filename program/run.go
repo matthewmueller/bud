@@ -5,12 +5,12 @@ import (
 	"errors"
 	"os"
 
-	"github.com/livebud/buddy/cli"
-	"github.com/livebud/buddy/di"
+	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/di"
 
-	"github.com/livebud/buddy/internal/signals"
-	"github.com/livebud/buddy/internal/stacktrace"
-	"github.com/livebud/buddy/log"
+	"github.com/matthewmueller/bud/internal/signals"
+	"github.com/matthewmueller/bud/internal/stacktrace"
+	"github.com/matthewmueller/bud/log"
 )
 
 type Provider = func(in di.Injector)

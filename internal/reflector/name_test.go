@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/livebud/buddy/internal/reflector"
+	"github.com/matthewmueller/bud/internal/reflector"
 	"github.com/matryer/is"
 )
 
@@ -40,16 +40,16 @@ func TestName(t *testing.T) {
 	is := is.New(t)
 	name, err := reflector.Name(customStruct{})
 	is.NoErr(err)
-	is.Equal(name, "github.com/livebud/buddy/internal/reflector_test.customStruct")
+	is.Equal(name, "github.com/matthewmueller/bud/internal/reflector_test.customStruct")
 	name, err = reflector.Name(&customStruct{})
 	is.NoErr(err)
-	is.Equal(name, "github.com/livebud/buddy/internal/reflector_test.*customStruct")
+	is.Equal(name, "github.com/matthewmueller/bud/internal/reflector_test.*customStruct")
 	name, err = reflector.Name(reflect.ValueOf((*customInterface)(nil)).Elem())
 	is.NoErr(err)
 	is.Equal(name, "reflect.Value")
 	name, err = reflector.Name(customFunc(func() int { return 0 }))
 	is.NoErr(err)
-	is.Equal(name, "github.com/livebud/buddy/internal/reflector_test.customFunc")
+	is.Equal(name, "github.com/matthewmueller/bud/internal/reflector_test.customFunc")
 }
 
 func TestNoName(t *testing.T) {

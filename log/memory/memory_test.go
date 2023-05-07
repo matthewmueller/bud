@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	log "github.com/livebud/buddy/log"
-	"github.com/livebud/buddy/log/memory"
+	log "github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/log/memory"
 	"github.com/matryer/is"
 )
 

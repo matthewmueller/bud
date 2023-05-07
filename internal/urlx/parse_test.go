@@ -3,7 +3,7 @@ package urlx_test
 import (
 	"testing"
 
-	"github.com/livebud/buddy/internal/urlx"
+	"github.com/matthewmueller/bud/internal/urlx"
 	"github.com/matryer/is"
 )
 

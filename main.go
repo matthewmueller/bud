@@ -4,12 +4,13 @@ import (
 	"context"
 	"os"
 
-	"github.com/livebud/buddy/cli"
-	"github.com/livebud/buddy/internal/command"
-	"github.com/livebud/buddy/internal/command/new"
-	"github.com/livebud/buddy/internal/command/serve"
-	"github.com/livebud/buddy/log"
-	"github.com/livebud/buddy/program"
+	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/di"
+	"github.com/matthewmueller/bud/internal/command"
+	"github.com/matthewmueller/bud/internal/command/new"
+	"github.com/matthewmueller/bud/internal/command/serve"
+	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/program"
 )
 
 func main() {
@@ -20,7 +21,7 @@ type Command struct {
 	Dir string
 }
 
-func run(ctx context.Context, args ...string) error {
+func run(ctx context.Context, in di.Injector, args ...string) error {
 	cmd := &command.Command{}
 	cli := cli.New("bud", "bud web framework")
 	cli.Flag("chdir", "change the working dir").Short('C').String(&cmd.Dir).Default(".")

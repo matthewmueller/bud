@@ -3,7 +3,7 @@ package lex_test
 import (
 	"testing"
 
-	"github.com/livebud/buddy/router/lex"
+	"github.com/matthewmueller/bud/router/lex"
 	"github.com/matryer/is"
 )
 

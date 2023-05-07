@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/livebud/buddy/transpiler"
+	"github.com/matthewmueller/bud/transpiler"
 	"github.com/matryer/is"
 )
 

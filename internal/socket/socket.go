@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/livebud/buddy/internal/urlx"
+	"github.com/matthewmueller/bud/internal/urlx"
 )
 
 // ErrAddrInUse occurs when a port is already in use

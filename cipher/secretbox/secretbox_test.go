@@ -7,8 +7,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/livebud/buddy/cipher"
-	"github.com/livebud/buddy/cipher/secretbox"
+	"github.com/matthewmueller/bud/cipher"
+	"github.com/matthewmueller/bud/cipher/secretbox"
 	"github.com/matryer/is"
 )
 

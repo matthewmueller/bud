@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/go-logfmt/logfmt"
-	log "github.com/livebud/buddy/log"
+	log "github.com/matthewmueller/bud/log"
 )
 
 func New(w io.Writer) *Handler {

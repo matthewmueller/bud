@@ -9,7 +9,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/livebud/buddy/internal/signals"
+	"github.com/matthewmueller/bud/internal/signals"
 )
 
 var ErrCommandNotFound = errors.New("command not found")

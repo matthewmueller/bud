@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/livebud/buddy/request"
+	"github.com/matthewmueller/bud/request"
 	"github.com/matryer/is"
 )
 

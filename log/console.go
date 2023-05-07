@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/go-logfmt/logfmt"
-	"github.com/livebud/buddy/internal/color"
+	"github.com/matthewmueller/bud/internal/color"
 )
 
 // Debug log

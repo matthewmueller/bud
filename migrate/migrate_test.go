@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/livebud/buddy/db"
-	"github.com/livebud/buddy/db/postgres"
-	"github.com/livebud/buddy/db/sqlite"
+	"github.com/matthewmueller/bud/db"
+	"github.com/matthewmueller/bud/db/postgres"
+	"github.com/matthewmueller/bud/db/sqlite"
 	"github.com/matryer/is"
 	"github.com/tj/assert"
 )

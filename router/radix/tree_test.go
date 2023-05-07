@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/gitchander/permutation"
-	"github.com/livebud/buddy/router/radix"
+	"github.com/matthewmueller/bud/router/radix"
 	"github.com/matryer/is"
 )
 

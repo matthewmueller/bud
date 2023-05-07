@@ -7,9 +7,9 @@ import (
 	"html/template"
 	"io/fs"
 
-	"github.com/livebud/buddy/log"
-	"github.com/livebud/buddy/transpiler"
-	"github.com/livebud/buddy/view"
+	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/transpiler"
+	"github.com/matthewmueller/bud/view"
 )
 
 func New(fsys fs.FS, log log.Log, tr transpiler.Interface) *Viewer {

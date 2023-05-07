@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/livebud/buddy/cli"
-	"github.com/livebud/buddy/program"
+	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/program"
 )
 
 func main() {

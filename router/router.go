@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/livebud/buddy/internal/socket"
-	"github.com/livebud/buddy/router/radix"
+	"github.com/matthewmueller/bud/internal/socket"
+	"github.com/matthewmueller/bud/router/radix"
 )
 
 // Interface for the router

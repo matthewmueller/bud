@@ -4,8 +4,8 @@ import (
 	"errors"
 	"os"
 
-	"github.com/livebud/buddy/internal/color"
-	"github.com/livebud/buddy/log"
+	"github.com/matthewmueller/bud/internal/color"
+	"github.com/matthewmueller/bud/log"
 )
 
 func ExampleConsole() {

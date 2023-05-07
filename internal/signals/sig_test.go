@@ -13,8 +13,8 @@ import (
 
 	"github.com/matryer/is"
 
-	"github.com/livebud/buddy/internal/signals"
-	"github.com/livebud/buddy/internal/subtest"
+	"github.com/matthewmueller/bud/internal/signals"
+	"github.com/matthewmueller/bud/internal/subtest"
 )
 
 func waitFor(r io.Reader, line string) error {

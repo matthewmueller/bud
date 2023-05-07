@@ -3,7 +3,7 @@ package di_test
 import (
 	"testing"
 
-	"github.com/livebud/buddy/di"
+	"github.com/matthewmueller/bud/di"
 	"github.com/matryer/is"
 )
 

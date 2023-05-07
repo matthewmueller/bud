@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/livebud/buddy/cipher"
+	"github.com/matthewmueller/bud/cipher"
 )
 
 // Secure cookie store

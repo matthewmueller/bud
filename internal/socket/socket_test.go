@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/livebud/buddy/internal/socket"
-	"github.com/livebud/buddy/internal/urlx"
+	"github.com/matthewmueller/bud/internal/socket"
+	"github.com/matthewmueller/bud/internal/urlx"
 	"github.com/matryer/is"
 )
 

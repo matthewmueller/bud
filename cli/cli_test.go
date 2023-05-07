@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/livebud/buddy/cli"
+	"github.com/matthewmueller/bud/cli"
 	"github.com/matryer/is"
 	"github.com/matthewmueller/diff"
 )

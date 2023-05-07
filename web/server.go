@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/livebud/buddy/di"
-	"github.com/livebud/buddy/internal/signals"
-	"github.com/livebud/buddy/internal/socket"
+	"github.com/matthewmueller/bud/di"
+	"github.com/matthewmueller/bud/internal/signals"
+	"github.com/matthewmueller/bud/internal/socket"
 )
 
 type Handler = http.Handler

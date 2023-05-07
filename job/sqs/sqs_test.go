@@ -14,9 +14,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	awssqs "github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
-	"github.com/livebud/buddy/job"
-	"github.com/livebud/buddy/job/sqs"
-	"github.com/livebud/buddy/log"
+	"github.com/matthewmueller/bud/job"
+	"github.com/matthewmueller/bud/job/sqs"
+	"github.com/matthewmueller/bud/log"
 	"github.com/matryer/is"
 )
 

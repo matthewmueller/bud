@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/livebud/buddy/router"
+	"github.com/matthewmueller/bud/router"
 	"github.com/matryer/is"
 )
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/livebud/buddy/cookie"
+	"github.com/matthewmueller/bud/cookie"
 )
 
 var ErrNotFound = errors.New("session not found")

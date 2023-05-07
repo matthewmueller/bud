@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"runtime"
 
-	"github.com/livebud/buddy/di"
+	"github.com/matthewmueller/bud/di"
 )
 
 func Action[In, Out any](fn func(req *Request[In], res Response[Out]) error) http.Handler {

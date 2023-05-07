@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"io/fs"
 
-	"github.com/livebud/buddy/db"
-	"github.com/livebud/buddy/log"
+	"github.com/matthewmueller/bud/db"
+	"github.com/matthewmueller/bud/log"
 )
 
 // ErrZerothMigration occurs when the migrations start at 000

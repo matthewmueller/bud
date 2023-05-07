@@ -3,10 +3,10 @@ package develop
 import (
 	"context"
 
-	"github.com/livebud/buddy/cli"
-	"github.com/livebud/buddy/command/serve"
-	"github.com/livebud/buddy/di"
-	"github.com/livebud/buddy/env"
+	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/command/serve"
+	"github.com/matthewmueller/bud/di"
+	"github.com/matthewmueller/bud/env"
 )
 
 func New(in di.Injector) *Command {

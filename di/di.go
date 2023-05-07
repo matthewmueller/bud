@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/livebud/buddy/internal/reflector"
+	"github.com/matthewmueller/bud/internal/reflector"
 )
 
 func New() Injector {

@@ -8,8 +8,8 @@ import (
 	"io"
 	"io/fs"
 
-	"github.com/livebud/buddy/log"
-	"github.com/livebud/buddy/transpiler"
+	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/transpiler"
 )
 
 func New(fsys fs.FS, log log.Log, tr transpiler.Interface) *Viewer {

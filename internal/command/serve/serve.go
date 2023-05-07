@@ -3,8 +3,8 @@ package serve
 import (
 	"context"
 
-	"github.com/livebud/buddy/cli"
-	"github.com/livebud/buddy/internal/command"
+	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/internal/command"
 )
 
 func New(cmd *command.Command) *Command {

@@ -7,12 +7,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/livebud/buddy/cli"
-	"github.com/livebud/buddy/internal/gotext"
-	"github.com/livebud/buddy/internal/shell"
-	"github.com/livebud/buddy/internal/task"
-	"github.com/livebud/buddy/internal/task/filemaker"
-	"github.com/livebud/buddy/log"
+	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/internal/gotext"
+	"github.com/matthewmueller/bud/internal/shell"
+	"github.com/matthewmueller/bud/internal/task"
+	"github.com/matthewmueller/bud/internal/task/filemaker"
+	"github.com/matthewmueller/bud/log"
 )
 
 func New(log log.Log) *Command {
