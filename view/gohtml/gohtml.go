@@ -1,10 +1,8 @@
 package gohtml
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"html/template"
 	"io/fs"
 
 	"github.com/matthewmueller/bud/log"
@@ -24,40 +22,40 @@ type Viewer struct {
 
 var _ view.Viewer = (*Viewer)(nil)
 
-func (v *Viewer) parseTemplate(ctx context.Context, templatePath string) (*template.Template, error) {
-	// TODO: decide if we want to scope to the view path or module path
-	code, err := fs.ReadFile(v.fsys, templatePath)
-	if err != nil {
-		return nil, fmt.Errorf("gohtml: unable to parse template %q. %w", templatePath, err)
-	}
-	// TODO: don't transpile when embedded
-	code, err = v.tr.Transpile(ctx, templatePath, ".gohtml", code)
-	if err != nil {
-		return nil, fmt.Errorf("gohtml: unable to transpile %s: %w", templatePath, err)
-	}
-	tpl, err := template.New(templatePath).Parse(string(code))
-	if err != nil {
-		return nil, err
-	}
-	return tpl, nil
-}
+// func (v *Viewer) parseTemplate(ctx context.Context, templatePath string) (*template.Template, error) {
+// 	// TODO: decide if we want to scope to the view path or module path
+// 	code, err := fs.ReadFile(v.fsys, templatePath)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("gohtml: unable to parse template %q. %w", templatePath, err)
+// 	}
+// 	// TODO: don't transpile when embedded
+// 	code, err = v.tr.Transpile(ctx, templatePath, ".gohtml", code)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("gohtml: unable to transpile %s: %w", templatePath, err)
+// 	}
+// 	tpl, err := template.New(templatePath).Parse(string(code))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return tpl, nil
+// }
 
-func (v *Viewer) render(ctx context.Context, templatePath string, props interface{}) ([]byte, error) {
-	tpl, err := v.parseTemplate(ctx, templatePath)
-	if err != nil {
-		return nil, err
-	}
-	return render(ctx, tpl, props)
-}
+// func (v *Viewer) render(ctx context.Context, templatePath string, props interface{}) ([]byte, error) {
+// 	tpl, err := v.parseTemplate(ctx, templatePath)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return render(ctx, tpl, props)
+// }
 
-func render(ctx context.Context, tpl *template.Template, props interface{}) ([]byte, error) {
-	out := new(bytes.Buffer)
-	// TODO: pass context through
-	if err := tpl.Execute(out, props); err != nil {
-		return nil, err
-	}
-	return out.Bytes(), nil
-}
+// func render(ctx context.Context, tpl *template.Template, props interface{}) ([]byte, error) {
+// 	out := new(bytes.Buffer)
+// 	// TODO: pass context through
+// 	if err := tpl.Execute(out, props); err != nil {
+// 		return nil, err
+// 	}
+// 	return out.Bytes(), nil
+// }
 
 func (v *Viewer) Render(ctx context.Context, key string, props view.Props) ([]byte, error) {
 	// page, ok := v.pages[key]

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"io/fs"
 
 	"github.com/matthewmueller/bud/db"
 	"github.com/matthewmueller/bud/log"
@@ -134,25 +133,25 @@ func (m *Migrate) Status(ctx context.Context) (*Status, error) {
 }
 
 // ensure the table exists
-func ensureTableExists(db *sql.DB, tableName string) error {
-	if _, err := db.Exec("CREATE TABLE IF NOT EXISTS " + tableName + " (version bigint not null primary key);"); err != nil {
-		return err
-	}
-	return nil
-}
+// func ensureTableExists(db *sql.DB, tableName string) error {
+// 	if _, err := db.Exec("CREATE TABLE IF NOT EXISTS " + tableName + " (version bigint not null primary key);"); err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
-// Version gets the version from postgres
-func getRemoteVersion(db *sql.DB, tableName string) (version uint, err error) {
-	err = db.QueryRow("SELECT version FROM " + tableName + " ORDER BY version DESC LIMIT 1").Scan(&version)
-	switch {
-	case err == sql.ErrNoRows:
-		return 0, nil
-	case err != nil:
-		return 0, err
-	default:
-		return version, nil
-	}
-}
+// // Version gets the version from postgres
+// func getRemoteVersion(db *sql.DB, tableName string) (version uint, err error) {
+// 	err = db.QueryRow("SELECT version FROM " + tableName + " ORDER BY version DESC LIMIT 1").Scan(&version)
+// 	switch {
+// 	case err == sql.ErrNoRows:
+// 		return 0, nil
+// 	case err != nil:
+// 		return 0, err
+// 	default:
+// 		return version, nil
+// 	}
+// }
 
 // func (m)
 
@@ -160,16 +159,16 @@ func getRemoteVersion(db *sql.DB, tableName string) (version uint, err error) {
 
 // }
 
-type sqlFile struct {
-	db   *sql.DB
-	fsys fs.FS
-	path string
-}
+// type sqlFile struct {
+// 	db   *sql.DB
+// 	fsys fs.FS
+// 	path string
+// }
 
-func (s *sqlFile) Up(ctx context.Context) error {
-	return nil
-}
+// func (s *sqlFile) Up(ctx context.Context) error {
+// 	return nil
+// }
 
-func (s *sqlFile) Down(ctx context.Context) error {
-	return nil
-}
+// func (s *sqlFile) Down(ctx context.Context) error {
+// 	return nil
+// }

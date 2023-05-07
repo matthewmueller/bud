@@ -37,6 +37,11 @@ func New[Session any](cipher cipher.Cipher, store Store) Middleware {
 				// have a cookie
 			}
 			plainID, err := cipher.Decrypt([]byte(cookie.Value))
+			if err != nil {
+				fmt.Println("cookie decrypt error, showing unauthorized", err)
+				http.Error(w, "cookie decrypt error", http.StatusUnauthorized)
+				return
+			}
 			sessionRaw, err := store.Get(string(plainID))
 			if err != nil {
 				if !errors.Is(err, ErrNotFound) {

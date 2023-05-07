@@ -1,18 +1,16 @@
 package migrate_test
 
 import (
-	"context"
 	"os"
 	"testing"
 
+	"github.com/matryer/is"
 	"github.com/matthewmueller/bud/db"
 	"github.com/matthewmueller/bud/db/postgres"
 	"github.com/matthewmueller/bud/db/sqlite"
-	"github.com/matryer/is"
-	"github.com/tj/assert"
 )
 
-const tableName = "migrate"
+// const tableName = "migrate"
 
 func TestPostgres(t *testing.T) {
 	url := "postgres://localhost:5432/migrate-test?sslmode=disable"
@@ -50,14 +48,14 @@ func TestSQLite(t *testing.T) {
 // 	}
 // }
 
-func drop(t testing.TB, db db.DB) {
-	_, err := db.QueryContext(context.Background(), `
-		drop table if exists migrate;
-		drop table if exists users;
-		drop table if exists teams;
-	`)
-	assert.NoError(t, err)
-}
+// func drop(t testing.TB, db db.DB) {
+// 	_, err := db.QueryContext(context.Background(), `
+// 		drop table if exists migrate;
+// 		drop table if exists users;
+// 		drop table if exists teams;
+// 	`)
+// 	assert.NoError(t, err)
+// }
 
 // func exists(t testing.TB, path string) {
 // 	_, err := os.Stat(path)
