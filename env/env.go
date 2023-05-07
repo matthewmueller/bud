@@ -9,6 +9,13 @@ import (
 	"github.com/matthewmueller/gotext"
 )
 
+func Or(key string, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
+}
+
 // func Default[Env any](envmap Map[Env]) Loadable[Env] {
 // 	return &loadable[Env]{envmap}
 // }

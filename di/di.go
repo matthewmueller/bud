@@ -32,10 +32,7 @@ var _ Injector = (*injector)(nil)
 func (in *injector) setProvider(name string, provider any) {
 	in.mu.Lock()
 	defer in.mu.Unlock()
-	// Only set the first instance of a provider.
-	if _, ok := in.fns[name]; !ok {
-		in.fns[name] = provider
-	}
+	in.fns[name] = provider
 }
 
 func (in *injector) getProvider(name string) (provider any, ok bool) {

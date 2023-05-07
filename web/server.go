@@ -8,17 +8,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/livebud/buddy/middleware"
-
+	"github.com/livebud/buddy/di"
 	"github.com/livebud/buddy/internal/signals"
 	"github.com/livebud/buddy/internal/socket"
-	"github.com/livebud/buddy/request"
-	"github.com/livebud/buddy/router"
-	"github.com/livebud/buddy/view"
 )
 
 type Handler = http.Handler
-
 type Server http.Server
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -97,31 +92,35 @@ func Format(l net.Listener) string {
 // }
 
 type Request[In any] struct {
+	r *http.Request
+	di.Injector
 	Params In
 }
 
-type Response[Out any] interface {
-	http.ResponseWriter
-	Render(out Out) error
-}
+// type Router = router.Interface
 
-type Viewer[Out any] struct {
-	http.ResponseWriter
-}
+// type Response[Out any] interface {
+// 	// http.ResponseWriter
+// 	Render(out Out) error
+// }
 
-var _ Response[any] = (*Viewer[any])(nil)
+// type Viewer[Out any] struct {
+// 	http.ResponseWriter
+// }
 
-func (v *Viewer[Out]) Render(out Out) error {
-	v.ResponseWriter.Header().Set("Content-Type", "text/html; charset=utf-8")
-	v.ResponseWriter.Write([]byte("hello"))
-	return nil
-}
+// var _ Response[any] = (*Viewer[any])(nil)
+
+// func (v *Viewer[Out]) Render(out Out) error {
+// 	v.ResponseWriter.Header().Set("Content-Type", "text/html; charset=utf-8")
+// 	v.ResponseWriter.Write([]byte("hello"))
+// 	return nil
+// }
 
 // func NewRouter() *Router {
 // 	return &Router{}
 // }
 
-type Router = router.Interface
+// type Router = router.Interface
 
 // type Router struct {
 // }
@@ -130,14 +129,14 @@ type Router = router.Interface
 // 	return &Route[any, any]{}
 // }
 
-type Middleware = middleware.Middleware
+// type Middleware = middleware.Middleware
 
-type Route[In, Out any] struct {
-}
+// type Route[In, Out any] struct {
+// }
 
-func (r *Route[In, Out]) Action(fn func(*Request[In], Response[Out]) error) *Route[In, Out] {
-	return r
-}
+// func (r *Route[In, Out]) Action(fn func(*Request[In], Response[Out]) error) *Route[In, Out] {
+// 	return r
+// }
 
 // type Func[In, Out any] interface {
 // 	func(w http.ResponseWriter, r *http.Request) |
@@ -156,49 +155,49 @@ func (r *Route[In, Out]) Action(fn func(*Request[In], Response[Out]) error) *Rou
 // 	return http.HandlerFunc(fn)
 // }
 
-func Action2[In, Out any](view view.Interface, fn func(context.Context, In) (Out, error)) http.Handler {
-	return &action2[In, Out]{fn}
-}
+// func Action2[In, Out any](view view.Interface, fn func(context.Context, In) (Out, error)) http.Handler {
+// 	return &action2[In, Out]{fn}
+// }
 
-type action2[In, Out any] struct {
-	fn func(context.Context, In) (Out, error)
-}
+// type action2[In, Out any] struct {
+// 	fn func(context.Context, In) (Out, error)
+// }
 
-func (a *action2[In, Out]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var in In
-	if err := request.Unmarshal(r, &in); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	out, err := a.fn(r.Context(), in)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	_ = out
-	w.Write([]byte("hello"))
-}
+// func (a *action2[In, Out]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// 	var in In
+// 	if err := request.Unmarshal(r, &in); err != nil {
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		w.Write([]byte(err.Error()))
+// 		return
+// 	}
+// 	out, err := a.fn(r.Context(), in)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		w.Write([]byte(err.Error()))
+// 		return
+// 	}
+// 	_ = out
+// 	w.Write([]byte("hello"))
+// }
 
-func Action[In, Out any](fn func(*Request[In], Response[Out]) error) http.Handler {
-	return &action[In, Out]{fn: fn, name: "action"}
-}
+// func Action[In, Out any](fn func(*Request[In], Response[Out]) error) http.Handler {
+// 	return &action[In, Out]{fn: fn, name: "action"}
+// }
 
-type action[In, Out any] struct {
-	fn   func(*Request[In], Response[Out]) error
-	name string
-}
+// type action[In, Out any] struct {
+// 	fn   func(*Request[In], Response[Out]) error
+// 	name string
+// }
 
-var _ http.Handler = (*action[any, any])(nil)
+// var _ http.Handler = (*action[any, any])(nil)
 
-func (a *action[In, Out]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	a.fn(&Request[In]{}, &Viewer[Out]{w})
-}
+// func (a *action[In, Out]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// 	a.fn(&Request[In]{}, &Viewer[Out]{w})
+// }
 
-func (a *action[In, Out]) String() string {
-	return a.name
-}
+// func (a *action[In, Out]) String() string {
+// 	return a.name
+// }
 
 // func funcKey(funcs ...interface{}) string {
 // 	names := []string{}

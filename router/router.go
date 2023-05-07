@@ -20,6 +20,7 @@ type Interface interface {
 	Put(route string, handler http.Handler) error
 	Patch(route string, handler http.Handler) error
 	Delete(route string, handler http.Handler) error
+	List() []*Route
 }
 
 // New router
@@ -110,6 +111,17 @@ func (rt *Router) Patch(route string, handler http.Handler) error {
 // Delete route
 func (rt *Router) Delete(route string, handler http.Handler) error {
 	return rt.set(http.MethodDelete, route, handler)
+}
+
+type Route struct {
+	Method string
+	Path   string
+	Name   string
+}
+
+// List all routes
+func (rt *Router) List() (routes []*Route) {
+	return routes
 }
 
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {

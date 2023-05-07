@@ -2,13 +2,14 @@ package serve
 
 import (
 	"context"
+	"net"
 
+	"github.com/livebud/buddy/env"
 	"github.com/livebud/buddy/middleware"
 	"github.com/livebud/buddy/router"
 	"github.com/livebud/buddy/welcome"
 
 	"github.com/livebud/buddy/di"
-	"github.com/livebud/buddy/internal/socket"
 	"github.com/livebud/buddy/log"
 	"github.com/livebud/buddy/web"
 
@@ -29,7 +30,7 @@ type Command struct {
 }
 
 func (c *Command) Mount(cmd cli.Command) {
-	cmd.Arg("address").String(&c.Address).Default(":3000")
+	cmd.Arg("address").String(&c.Address).Default(":" + env.Or("PORT", "3000"))
 	cmd.Run(c.Serve)
 }
 
@@ -42,7 +43,7 @@ func (c *Command) Serve(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	ln, err := socket.Listen(c.Address)
+	ln, err := net.Listen("tcp", c.Address)
 	if err != nil {
 		return err
 	}
@@ -50,22 +51,24 @@ func (c *Command) Serve(ctx context.Context) error {
 	return server.Serve(ctx, ln)
 }
 
-func provideRouter(in di.Injector) (web.Router, error) {
+func provideRouter(in di.Injector) (router.Interface, error) {
 	r := router.New()
 	r.Get("/", welcome.New())
 	return r, nil
 }
 
-func provideMiddleware(in di.Injector) (web.Middleware, error) {
-	return middleware.Compose(), nil
+func provideMiddleware(in di.Injector) (middleware.Middleware, error) {
+	return middleware.Compose(
+		di.Middleware(in),
+	), nil
 }
 
 func provideHandler(in di.Injector) (web.Handler, error) {
-	router, err := di.Load[web.Router](in)
+	router, err := di.Load[router.Interface](in)
 	if err != nil {
 		return nil, err
 	}
-	middleware, err := di.Load[web.Middleware](in)
+	middleware, err := di.Load[middleware.Middleware](in)
 	if err != nil {
 		return nil, err
 	}

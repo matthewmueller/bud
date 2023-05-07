@@ -74,6 +74,10 @@ func (c *CLI) Mounter(m Mounter) {
 	m.Mount(c)
 }
 
+type Parser interface {
+	Parse(ctx context.Context, args ...string) error
+}
+
 // func (c *CLI) Use(name string, user User) {
 // 	c.subcommand.Use(name, user)
 // }
