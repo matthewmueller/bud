@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/matthewmueller/bud/db"
-	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/logger"
 )
 
 // ErrZerothMigration occurs when the migrations start at 000
@@ -58,7 +58,7 @@ type Interface interface {
 // 	Downer
 // }
 
-func New(db db.DB, log log.Log) *Migrate {
+func New(db db.DB, log logger.Log) *Migrate {
 	return &Migrate{db, log, nil}
 }
 
@@ -80,7 +80,7 @@ func New(db db.DB, log log.Log) *Migrate {
 
 type Migrate struct {
 	db         db.DB
-	log        log.Log
+	log        logger.Log
 	migrations []Migration
 }
 

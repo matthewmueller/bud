@@ -1,5 +1,5 @@
 // Package log is inspired by apex/log.
-package log
+package logger
 
 import (
 	"bytes"

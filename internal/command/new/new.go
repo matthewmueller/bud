@@ -12,15 +12,15 @@ import (
 	"github.com/matthewmueller/bud/internal/shell"
 	"github.com/matthewmueller/bud/internal/task"
 	"github.com/matthewmueller/bud/internal/task/filemaker"
-	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/logger"
 )
 
-func New(log log.Log) *Command {
+func New(log logger.Log) *Command {
 	return &Command{log: log}
 }
 
 type Command struct {
-	log   log.Log
+	log   logger.Log
 	Dir   string
 	Dev   bool
 	Force bool
@@ -61,7 +61,7 @@ func (c *Command) Undo(ctx context.Context) error {
 }
 
 type maingoScaffold struct {
-	log   log.Log
+	log   logger.Log
 	dir   string
 	force bool
 	Name  string
@@ -101,7 +101,7 @@ var gomodTemplate string
 var gomodGenerator = gotext.MustParse("go.mod", gomodTemplate)
 
 type gomodScaffold struct {
-	log        log.Log
+	log        logger.Log
 	force      bool
 	Dir        string
 	Module     string
@@ -132,7 +132,7 @@ func (s *gomodScaffold) Undo(ctx context.Context) error {
 }
 
 type gomodTidy struct {
-	log log.Log
+	log logger.Log
 	cmd shell.Runner
 }
 

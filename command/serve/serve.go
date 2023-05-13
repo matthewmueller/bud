@@ -6,11 +6,11 @@ import (
 
 	"github.com/matthewmueller/bud/env"
 	"github.com/matthewmueller/bud/middleware"
-	"github.com/matthewmueller/bud/router"
+	"github.com/matthewmueller/bud/web/router"
 	"github.com/matthewmueller/bud/welcome"
 
 	"github.com/matthewmueller/bud/di"
-	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/logger"
 	"github.com/matthewmueller/bud/web"
 
 	"github.com/matthewmueller/bud/cli"
@@ -34,10 +34,8 @@ func (c *Command) Mount(cmd cli.Command) {
 	cmd.Run(c.Serve)
 }
 
-
-
 func (c *Command) Serve(ctx context.Context) error {
-	log, err := di.Load[log.Log](c.in)
+	log, err := di.Load[logger.Log](c.in)
 	if err != nil {
 		return err
 	}
@@ -53,7 +51,7 @@ func (c *Command) Serve(ctx context.Context) error {
 	return server.Serve(ctx, ln)
 }
 
-func provideRouter(in di.Injector) (router.Interface, error) {
+func provideRouter(in di.Injector) (web.Router, error) {
 	r := router.New()
 	r.Get("/", welcome.New())
 	return r, nil
@@ -66,7 +64,7 @@ func provideMiddleware(in di.Injector) (middleware.Middleware, error) {
 }
 
 func provideHandler(in di.Injector) (web.Handler, error) {
-	router, err := di.Load[router.Interface](in)
+	router, err := di.Load[web.Router](in)
 	if err != nil {
 		return nil, err
 	}

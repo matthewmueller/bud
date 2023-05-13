@@ -8,17 +8,17 @@ import (
 	"io"
 	"io/fs"
 
-	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/logger"
 	"github.com/matthewmueller/bud/transpiler"
 )
 
-func New(fsys fs.FS, log log.Log, tr transpiler.Interface) *Viewer {
+func New(fsys fs.FS, log logger.Log, tr transpiler.Interface) *Viewer {
 	return &Viewer{fsys, log, tr}
 }
 
 type Viewer struct {
 	fsys fs.FS
-	log  log.Log
+	log  logger.Log
 	tr   transpiler.Interface
 }
 

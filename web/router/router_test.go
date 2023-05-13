@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/matthewmueller/bud/router"
 	"github.com/matryer/is"
+	"github.com/matthewmueller/bud/web/router"
 )
 
 type test struct {

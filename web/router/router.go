@@ -8,20 +8,9 @@ import (
 	"strings"
 
 	"github.com/matthewmueller/bud/internal/socket"
-	"github.com/matthewmueller/bud/router/radix"
+	"github.com/matthewmueller/bud/web"
+	"github.com/matthewmueller/bud/web/router/radix"
 )
-
-// Interface for the router
-type Interface interface {
-	http.Handler
-	Set(method, route string, handler http.Handler) error
-	Get(route string, handler http.Handler) error
-	Post(route string, handler http.Handler) error
-	Put(route string, handler http.Handler) error
-	Patch(route string, handler http.Handler) error
-	Delete(route string, handler http.Handler) error
-	List() []*Route
-}
 
 // New router
 func New() *Router {
@@ -36,10 +25,10 @@ type Router struct {
 }
 
 var _ http.Handler = (*Router)(nil)
-var _ Interface = (*Router)(nil)
+var _ web.Router = (*Router)(nil)
 
 type Mounter interface {
-	Mount(rt Interface)
+	Mount(rt web.Router)
 }
 
 func (rt *Router) Mount(m Mounter) {
@@ -113,14 +102,8 @@ func (rt *Router) Delete(route string, handler http.Handler) error {
 	return rt.set(http.MethodDelete, route, handler)
 }
 
-type Route struct {
-	Method string
-	Path   string
-	Name   string
-}
-
 // List all routes
-func (rt *Router) List() (routes []*Route) {
+func (rt *Router) List() (routes []*web.Route) {
 	return routes
 }
 

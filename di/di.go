@@ -17,6 +17,7 @@ func New() Injector {
 type Injector interface {
 	setProvider(name string, provider any)
 	getProvider(name string) (provider any, ok bool)
+	listProviders() []string
 	setCache(name string, dep any)
 	getCache(name string) (dep any, ok bool)
 }
@@ -55,6 +56,15 @@ func (in *injector) getCache(name string) (dep any, ok bool) {
 	return dep, ok
 }
 
+func (in *injector) listProviders() (providers []string) {
+	in.mu.RLock()
+	defer in.mu.RUnlock()
+	for name := range in.fns {
+		providers = append(providers, name)
+	}
+	return providers
+}
+
 func Provide[Dep any](in Injector, fn func(in Injector) (d Dep, err error)) error {
 	var dep Dep
 	name, err := reflector.Name(dep)
@@ -87,4 +97,14 @@ func Load[Dep any](in Injector) (dep Dep, err error) {
 	}
 	in.setCache(name, d)
 	return d, nil
+}
+
+func Print(in Injector) string {
+	providers := in.listProviders()
+	return fmt.Sprintf("di: %d providers\n%s", len(providers), providers)
+	// var s string
+	// for name := range in.(*injector).fns {
+	// 	s += name + "\n"
+	// }
+	// return s
 }

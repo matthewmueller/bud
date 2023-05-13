@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/gitchander/permutation"
-	"github.com/matthewmueller/bud/router/radix"
 	"github.com/matryer/is"
+	"github.com/matthewmueller/bud/web/router/radix"
 )
 
 type test struct {

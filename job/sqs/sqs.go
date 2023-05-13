@@ -10,17 +10,17 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
 	"github.com/matthewmueller/bud/job"
-	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/logger"
 )
 
 // New SQS queue
-func New(client sqsiface.SQSAPI, log log.Log, queueUrl string) *Queue {
+func New(client sqsiface.SQSAPI, log logger.Log, queueUrl string) *Queue {
 	return &Queue{client, log, queueUrl}
 }
 
 type Queue struct {
 	client   sqsiface.SQSAPI
-	log      log.Log
+	log      logger.Log
 	queueUrl string
 }
 

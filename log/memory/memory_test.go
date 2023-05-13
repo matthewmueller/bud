@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	log "github.com/matthewmueller/bud/log"
-	"github.com/matthewmueller/bud/log/memory"
 	"github.com/matryer/is"
+	"github.com/matthewmueller/bud/log/memory"
+	log "github.com/matthewmueller/bud/logger"
 )
 
 func TestLog(t *testing.T) {

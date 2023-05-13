@@ -1,10 +1,11 @@
 package di_test
 
 import (
+	"fmt"
 	"testing"
 
-	"github.com/matthewmueller/bud/di"
 	"github.com/matryer/is"
+	"github.com/matthewmueller/bud/di"
 )
 
 type Env struct {
@@ -35,4 +36,15 @@ func TestDI(t *testing.T) {
 	log, err := di.Load[*Log](in)
 	is.NoErr(err)
 	is.Equal(log.V, "hello")
+}
+
+func TestPrint(t *testing.T) {
+	// is := is.New(t)
+	in := di.New()
+	di.Provide(in, loadEnv)
+	di.Provide(in, loadLog)
+	fmt.Println(di.Print(in))
+	// log, err := di.Load[*Log](in)
+	// is.NoErr(err)
+	// is.Equal(log.V, "hello")
 }

@@ -14,10 +14,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	awssqs "github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
+	"github.com/matryer/is"
 	"github.com/matthewmueller/bud/job"
 	"github.com/matthewmueller/bud/job/sqs"
-	"github.com/matthewmueller/bud/log"
-	"github.com/matryer/is"
+	"github.com/matthewmueller/bud/logger"
 )
 
 func TestReal(t *testing.T) {
@@ -33,7 +33,7 @@ func TestReal(t *testing.T) {
 	session := session.Must(session.NewSession(&aws.Config{
 		Region: aws.String(os.Getenv("AWS_REGION")),
 	}))
-	log := log.Default()
+	log := logger.Default()
 	sqs := sqs.New(awssqs.New(session), log, os.Getenv("QUEUE_URL"))
 	err := sqs.Push(ctx, &job.Message{
 		ID:        "1",
@@ -157,7 +157,7 @@ func TestProcessor(t *testing.T) {
 			return &awssqs.DeleteMessageOutput{}, nil
 		},
 	}
-	queue := sqs.New(mock, log.Default(), url)
+	queue := sqs.New(mock, logger.Default(), url)
 	err := queue.Push(ctx, &job.Message{
 		ID:        "1",
 		Payload:   []byte(`{"url":"https://example.com"}`),
@@ -170,7 +170,7 @@ func TestProcessor(t *testing.T) {
 		Timestamp: time.Now(),
 	})
 	is.NoErr(err)
-	err = job.Work(ctx, queue.Worker(&Handler{log.Default(), 0}))
+	err = job.Work(ctx, queue.Worker(&Handler{logger.Default(), 0}))
 	is.NoErr(err)
 	// worker.New(log.Default(), queue)
 	// err := sqsQueue.Push(ctx, &queue.Message{
@@ -251,7 +251,7 @@ func TestProcessor(t *testing.T) {
 // }
 
 type Handler struct {
-	log      log.Log
+	log      logger.Log
 	attempts int
 }
 

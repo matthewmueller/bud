@@ -8,15 +8,15 @@ import (
 	"path/filepath"
 
 	"github.com/matthewmueller/bud/internal/task"
-	"github.com/matthewmueller/bud/log"
+	"github.com/matthewmueller/bud/logger"
 )
 
-func New(log log.Log, path string, data []byte, force bool) *Task {
+func New(log logger.Log, path string, data []byte, force bool) *Task {
 	return &Task{log, path, data, force}
 }
 
 type Task struct {
-	log   log.Log
+	log   logger.Log
 	path  string
 	data  []byte
 	force bool

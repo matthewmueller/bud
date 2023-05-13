@@ -3,8 +3,8 @@ package lex_test
 import (
 	"testing"
 
-	"github.com/matthewmueller/bud/router/lex"
 	"github.com/matryer/is"
+	"github.com/matthewmueller/bud/web/router/lex"
 )
 
 func tokens(t testing.TB, input string) lex.Tokens {

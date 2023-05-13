@@ -1,4 +1,4 @@
-package log
+package logger
 
 // Filter logs by level
 func Filter(level Level, handler Handler) Handler {
