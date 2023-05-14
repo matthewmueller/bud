@@ -3,10 +3,10 @@ package develop
 import (
 	"context"
 
-	"github.com/matthewmueller/bud/cli"
 	"github.com/matthewmueller/bud/command/serve"
 	"github.com/matthewmueller/bud/di"
 	"github.com/matthewmueller/bud/env"
+	"github.com/matthewmueller/bud/internal/cli"
 )
 
 func New(in di.Injector) *Command {

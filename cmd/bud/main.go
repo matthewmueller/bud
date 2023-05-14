@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/matthewmueller/bud/cli"
 	"github.com/matthewmueller/bud/di"
+	"github.com/matthewmueller/bud/internal/cli"
 	"github.com/matthewmueller/bud/internal/command"
 	"github.com/matthewmueller/bud/internal/command/new"
 	"github.com/matthewmueller/bud/internal/command/serve"

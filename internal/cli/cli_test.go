@@ -13,8 +13,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/matthewmueller/bud/cli"
 	"github.com/matryer/is"
+	"github.com/matthewmueller/bud/internal/cli"
 	"github.com/matthewmueller/diff"
 )
 

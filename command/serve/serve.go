@@ -13,7 +13,7 @@ import (
 	"github.com/matthewmueller/bud/logger"
 	"github.com/matthewmueller/bud/web"
 
-	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/internal/cli"
 )
 
 func New(in di.Injector) *Command {

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"os"
 
-	"github.com/matthewmueller/bud/cli"
 	"github.com/matthewmueller/bud/di"
+	"github.com/matthewmueller/bud/internal/cli"
 
 	"github.com/matthewmueller/bud/internal/signals"
 	"github.com/matthewmueller/bud/internal/stacktrace"

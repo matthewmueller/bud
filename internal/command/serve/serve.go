@@ -3,7 +3,7 @@ package serve
 import (
 	"context"
 
-	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/internal/cli"
 	"github.com/matthewmueller/bud/internal/command"
 )
 

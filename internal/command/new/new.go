@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/matthewmueller/bud/cli"
+	"github.com/matthewmueller/bud/internal/cli"
 	"github.com/matthewmueller/bud/internal/gotext"
 	"github.com/matthewmueller/bud/internal/shell"
 	"github.com/matthewmueller/bud/internal/task"
