@@ -10,12 +10,10 @@ type Command = cli.Command
 type Mounter = cli.Mounter
 
 func Provider(in di.Injector) {
-	di.Provide[Command](in, provide)
-	// TODO: figure out a way to alias Command to *CLI
-	// then switch back to *CLI
+	di.Provide[*CLI](in, provide)
 }
 
-func provide(in di.Injector) (Command, error) {
+func provide(in di.Injector) (*CLI, error) {
 	return Default(), nil
 }
 

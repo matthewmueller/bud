@@ -9,8 +9,26 @@ import (
 	"github.com/matthewmueller/bud/internal/cli"
 )
 
-func New(in di.Injector) *Command {
-	serve := serve.New(in)
+func Provide(in di.Injector) (*Command, error) {
+	serve, err := di.Load[*serve.Command](in)
+	if err != nil {
+		return nil, err
+	}
+	return New(serve), nil
+}
+
+func Register(in di.Injector, cli *cli.CLI) error {
+	cmd, err := di.Load[*Command](in)
+	if err != nil {
+		return err
+	}
+	sub := cli.Command("develop", "develop the app")
+	sub.Arg("address").String(&cmd.serve.Address).Default(":" + env.Or("PORT", "3000"))
+	sub.Run(cmd.Develop)
+	return nil
+}
+
+func New(serve *serve.Command) *Command {
 	return &Command{serve}
 }
 

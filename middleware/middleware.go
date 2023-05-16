@@ -1,8 +1,20 @@
 package middleware
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/matthewmueller/bud/di"
+)
 
 type Middleware func(http.Handler) http.Handler
+
+func Provider(in di.Injector) {
+	di.Provide[Middleware](in, provideMiddleware)
+}
+
+func provideMiddleware(in di.Injector) (Middleware, error) {
+	return Compose(), nil
+}
 
 // Compose a stack of middleware into a single middleware
 func Compose(middlewares ...Middleware) Middleware {

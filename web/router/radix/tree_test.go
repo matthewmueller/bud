@@ -35,7 +35,7 @@ type request struct {
 	nomatch bool
 }
 
-func handler(route string) http.Handler {
+func handler(route string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(route))
 	})
@@ -66,7 +66,7 @@ func ok(t testing.TB, test *test) {
 		// Test the handler
 		req := httptest.NewRequest("GET", "/", nil)
 		rec := httptest.NewRecorder()
-		match.Handler.ServeHTTP(rec, req)
+		match.Handler(rec, req)
 		res := rec.Result()
 		body, err := io.ReadAll(res.Body)
 		is.NoErr(err)

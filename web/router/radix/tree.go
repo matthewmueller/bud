@@ -16,7 +16,7 @@ func New() Tree {
 
 // Tree interface
 type Tree interface {
-	Insert(route string, handler http.Handler) error
+	Insert(route string, fn func(w http.ResponseWriter, r *http.Request)) error
 	Match(path string) (*Match, bool)
 	String() string
 }
@@ -32,7 +32,7 @@ type Slot struct {
 
 // Match struct
 type Match struct {
-	Handler http.Handler
+	Handler func(w http.ResponseWriter, r *http.Request)
 	Route   string
 	Slots   Slots
 }
@@ -41,12 +41,12 @@ type Match struct {
 type matchFn func(path string) (index int, slots Slots)
 
 type node struct {
-	tokens   lex.Tokens   // tokens that make up part or all of the route
-	match    matchFn      // compiled match function
-	route    string       // original inserted route
-	handler  http.Handler // original handler
-	children []*node      // child nodes
-	wilds    []*node      // wild children
+	tokens   lex.Tokens                                   // tokens that make up part or all of the route
+	match    matchFn                                      // compiled match function
+	route    string                                       // original inserted route
+	handler  func(w http.ResponseWriter, r *http.Request) // original handler
+	children []*node                                      // child nodes
+	wilds    []*node                                      // wild children
 }
 
 func (n *node) isWild() bool {
@@ -74,7 +74,7 @@ type tree struct {
 	root *node
 }
 
-func (t *tree) Insert(route string, handler http.Handler) error {
+func (t *tree) Insert(route string, fn func(w http.ResponseWriter, r *http.Request)) error {
 	lexer := lex.New(route)
 	var tokens lex.Tokens
 	for {
@@ -82,7 +82,7 @@ func (t *tree) Insert(route string, handler http.Handler) error {
 		switch token.Type {
 		case lex.QuestionToken:
 			// Each optional tokens insert two routes
-			if err := t.insert(stripTokenTrail(tokens), route, handler); err != nil {
+			if err := t.insert(stripTokenTrail(tokens), route, fn); err != nil {
 				return err
 			}
 			// Make the optional token required
@@ -92,7 +92,7 @@ func (t *tree) Insert(route string, handler http.Handler) error {
 			})
 		case lex.StarToken:
 			// Each optional tokens insert two routes
-			if err := t.insert(stripTokenTrail(tokens), route, handler); err != nil {
+			if err := t.insert(stripTokenTrail(tokens), route, fn); err != nil {
 				return err
 			}
 			tokens = append(tokens, token)
@@ -101,7 +101,7 @@ func (t *tree) Insert(route string, handler http.Handler) error {
 			return errors.New(token.Value)
 		case lex.EndToken:
 			// Done parsing the route
-			return t.insert(tokens, route, handler)
+			return t.insert(tokens, route, fn)
 		default:
 			tokens = append(tokens, token)
 		}
@@ -132,20 +132,20 @@ loop:
 	return newTokens
 }
 
-func (t *tree) insert(tokens lex.Tokens, route string, handler http.Handler) error {
+func (t *tree) insert(tokens lex.Tokens, route string, fn func(w http.ResponseWriter, r *http.Request)) error {
 	if t.root == nil {
 		t.root = &node{
 			tokens:  tokens,
 			match:   matcher(tokens),
 			route:   route,
-			handler: handler,
+			handler: fn,
 		}
 		return nil
 	}
-	return t.insertAt(t.root, tokens, route, handler)
+	return t.insertAt(t.root, tokens, route, fn)
 }
 
-func (t *tree) insertAt(parent *node, tokens lex.Tokens, route string, handler http.Handler) error {
+func (t *tree) insertAt(parent *node, tokens lex.Tokens, route string, fn func(w http.ResponseWriter, r *http.Request)) error {
 	// Compute the longest common prefix between new path and the node's path
 	// before slots.
 	lcp := longestCommonPrefix(tokens, parent.tokens)
@@ -159,7 +159,7 @@ func (t *tree) insertAt(parent *node, tokens lex.Tokens, route string, handler h
 		// E.g. We've inserted "/a", "/b", then "/". "/" will already be in the tree
 		// but not have a handler
 		if inTreeAlready {
-			parent.handler = handler
+			parent.handler = fn
 			parent.route = route
 			return nil
 		}
@@ -167,7 +167,7 @@ func (t *tree) insertAt(parent *node, tokens lex.Tokens, route string, handler h
 			tokens:  parts[1],
 			match:   matcher(parts[1]),
 			route:   route,
-			handler: handler,
+			handler: fn,
 		})
 		if err != nil {
 			return err
@@ -180,7 +180,7 @@ func (t *tree) insertAt(parent *node, tokens lex.Tokens, route string, handler h
 	// This set of tokens are already in the tree. Override any prior handler if
 	// there was one.
 	if inTreeAlready {
-		parent.handler = handler
+		parent.handler = fn
 		parent.route = route
 		return nil
 	}
@@ -188,13 +188,13 @@ func (t *tree) insertAt(parent *node, tokens lex.Tokens, route string, handler h
 	// children also start with that non-common part. If so, traverse that child.
 	for _, child := range parent.children {
 		if child.tokens.At(0) == parts[1].At(0) {
-			return t.insertAt(child, parts[1], route, handler)
+			return t.insertAt(child, parts[1], route, fn)
 		}
 	}
 	// Recurse wild children if the wild child matches exactly
 	for _, wild := range parent.wilds {
 		if wild != nil && wild.tokens.At(0) == parts[1].At(0) {
-			return t.insertAt(wild, parts[1], route, handler)
+			return t.insertAt(wild, parts[1], route, fn)
 		}
 	}
 	// Otherwise, insert a new child on the parent with the remaining non-common
@@ -203,7 +203,7 @@ func (t *tree) insertAt(parent *node, tokens lex.Tokens, route string, handler h
 		tokens:  parts[1],
 		match:   matcher(parts[1]),
 		route:   route,
-		handler: handler,
+		handler: fn,
 	})
 }
 
@@ -407,7 +407,7 @@ func (t *tree) string(n *node, indent string) string {
 	if n.isWild() {
 		kind = "w"
 	}
-	out := fmt.Sprintf("%s%s[%d%s] %v\r\n", indent, route, len(n.children)+len(n.wilds), kind, n.handler)
+	out := fmt.Sprintf("%s%s[%d%s]\r\n", indent, route, len(n.children)+len(n.wilds), kind)
 	for l := len(route); l > 0; l-- {
 		indent += " "
 	}

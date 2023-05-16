@@ -7,10 +7,36 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/matthewmueller/bud/internal/reflector"
+
+	"github.com/matthewmueller/bud/di"
 	"github.com/matthewmueller/bud/internal/socket"
-	"github.com/matthewmueller/bud/web"
 	"github.com/matthewmueller/bud/web/router/radix"
 )
+
+type Route struct {
+	Method string
+	Path   string
+	Name   string
+}
+
+// Interface interface
+type Interface interface {
+	Set(method, route string, fn func(w http.ResponseWriter, r *http.Request)) error
+	Get(route string, fn func(w http.ResponseWriter, r *http.Request)) error
+	Post(route string, fn func(w http.ResponseWriter, r *http.Request)) error
+	Put(route string, fn func(w http.ResponseWriter, r *http.Request)) error
+	Patch(route string, fn func(w http.ResponseWriter, r *http.Request)) error
+	Delete(route string, fn func(w http.ResponseWriter, r *http.Request)) error
+}
+
+func Provider(in di.Injector) {
+	di.Provide[*Router](in, provide)
+}
+
+func provide(in di.Injector) (*Router, error) {
+	return New(), nil
+}
 
 // New router
 func New() *Router {
@@ -22,13 +48,14 @@ func New() *Router {
 // Router struct
 type Router struct {
 	methods map[string]radix.Tree
+	routes  []*Route
 }
 
 var _ http.Handler = (*Router)(nil)
-var _ web.Router = (*Router)(nil)
+var _ Interface = (*Router)(nil)
 
 type Mounter interface {
-	Mount(rt web.Router)
+	Mount(rt Interface)
 }
 
 func (rt *Router) Mount(m Mounter) {
@@ -53,58 +80,67 @@ func (rt *Router) Serve(ctx context.Context, ln net.Listener) error {
 }
 
 // Set a handler to a route
-func (rt *Router) Set(method, route string, handler http.Handler) error {
+func (rt *Router) Set(method, route string, fn func(w http.ResponseWriter, r *http.Request)) error {
 	if !isMethod(method) {
 		return fmt.Errorf("router: %q is not a valid HTTP method", method)
 	}
-	return rt.set(method, route, handler)
+	return rt.set(method, route, fn)
 }
 
-func (rt *Router) set(method, route string, handler http.Handler) error {
+func (rt *Router) set(method, route string, fn func(w http.ResponseWriter, r *http.Request)) error {
 	if route == "/" {
-		return rt.insert(method, route, handler)
+		return rt.insert(method, route, fn)
 	}
 	// Trim any trailing slash and lowercase the route
 	route = strings.TrimRight(strings.ToLower(route), "/")
-	return rt.insert(method, route, handler)
+	return rt.insert(method, route, fn)
 }
 
 // Insert the route into the method's radix tree
-func (rt *Router) insert(method, route string, handler http.Handler) error {
+func (rt *Router) insert(method, route string, fn func(w http.ResponseWriter, r *http.Request)) error {
 	if _, ok := rt.methods[method]; !ok {
 		rt.methods[method] = radix.New()
 	}
-	return rt.methods[method].Insert(route, handler)
+	fi, err := reflector.Func(fn)
+	if err != nil {
+		return err
+	}
+	rt.routes = append(rt.routes, &Route{
+		Method: method,
+		Path:   route,
+		Name:   fi.Name(),
+	})
+	return rt.methods[method].Insert(route, fn)
 }
 
 // Get route
-func (rt *Router) Get(route string, handler http.Handler) error {
-	return rt.set(http.MethodGet, route, handler)
+func (rt *Router) Get(route string, fn func(w http.ResponseWriter, r *http.Request)) error {
+	return rt.set(http.MethodGet, route, fn)
 }
 
 // Post route
-func (rt *Router) Post(route string, handler http.Handler) error {
-	return rt.set(http.MethodPost, route, handler)
+func (rt *Router) Post(route string, fn func(w http.ResponseWriter, r *http.Request)) error {
+	return rt.set(http.MethodPost, route, fn)
 }
 
 // Put route
-func (rt *Router) Put(route string, handler http.Handler) error {
-	return rt.set(http.MethodPut, route, handler)
+func (rt *Router) Put(route string, fn func(w http.ResponseWriter, r *http.Request)) error {
+	return rt.set(http.MethodPut, route, fn)
 }
 
 // Patch route
-func (rt *Router) Patch(route string, handler http.Handler) error {
-	return rt.set(http.MethodPatch, route, handler)
+func (rt *Router) Patch(route string, fn func(w http.ResponseWriter, r *http.Request)) error {
+	return rt.set(http.MethodPatch, route, fn)
 }
 
 // Delete route
-func (rt *Router) Delete(route string, handler http.Handler) error {
-	return rt.set(http.MethodDelete, route, handler)
+func (rt *Router) Delete(route string, fn func(w http.ResponseWriter, r *http.Request)) error {
+	return rt.set(http.MethodDelete, route, fn)
 }
 
 // List all routes
-func (rt *Router) List() (routes []*web.Route) {
-	return routes
+func (rt *Router) List() []*Route {
+	return rt.routes
 }
 
 func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -137,7 +173,7 @@ func (rt *Router) Middleware(next http.Handler) http.Handler {
 			r.URL.RawQuery = query.Encode()
 		}
 		// Call the handler
-		match.Handler.ServeHTTP(w, r)
+		match.Handler(w, r)
 	})
 }
 

@@ -16,6 +16,7 @@ require (
 	github.com/matthewmueller/gotext v0.0.0-20210424201144-265ed61725ac
 	github.com/timewasted/go-accept-headers v0.0.0-20130320203746-c78f304b1b09
 	github.com/xlab/treeprint v1.2.0
+	github.com/xo/dburl v0.14.2
 	golang.org/x/crypto v0.8.0
 	golang.org/x/mod v0.8.0
 	golang.org/x/sync v0.1.0

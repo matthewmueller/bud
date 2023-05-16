@@ -33,7 +33,7 @@ type request struct {
 }
 
 // Handler returns the raw query
-func handler(route string) http.Handler {
+func handler(route string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(r.URL.RawQuery))
 	})

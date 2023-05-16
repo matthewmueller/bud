@@ -11,10 +11,46 @@ import (
 	"github.com/matthewmueller/bud/di"
 	"github.com/matthewmueller/bud/internal/signals"
 	"github.com/matthewmueller/bud/internal/socket"
+	"github.com/matthewmueller/bud/middleware"
+	"github.com/matthewmueller/bud/web/router"
 )
+
+// func provideMiddleware(in di.Injector) (middleware.Middleware, error) {
+// 	return middleware.Compose(
+// 		di.Middleware(in),
+// 	), nil
+// }
 
 type Handler = http.Handler
 type Server http.Server
+
+func Provider(in di.Injector) {
+	di.Provide[Handler](in, provideHandler)
+	di.Provide[*Server](in, provideServer)
+}
+
+func provideHandler(in di.Injector) (Handler, error) {
+	router, err := di.Load[*router.Router](in)
+	if err != nil {
+		return nil, err
+	}
+	middleware, err := di.Load[middleware.Middleware](in)
+	if err != nil {
+		return nil, err
+	}
+	return middleware(router), nil
+}
+
+func provideServer(in di.Injector) (*Server, error) {
+	handler, err := di.Load[Handler](in)
+	if err != nil {
+		return nil, err
+	}
+	server := &Server{
+		Handler: handler,
+	}
+	return server, nil
+}
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.Handler.ServeHTTP(w, r)
