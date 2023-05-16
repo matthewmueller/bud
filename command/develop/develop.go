@@ -22,9 +22,8 @@ func Register(in di.Injector, cli *cli.CLI) error {
 	if err != nil {
 		return err
 	}
-	sub := cli.Command("develop", "develop the app")
-	sub.Arg("address").String(&cmd.serve.Address).Default(":" + env.Or("PORT", "3000"))
-	sub.Run(cmd.Develop)
+	cli.Arg("address").String(&cmd.serve.Address).Default(":" + env.Or("PORT", "3000"))
+	cli.Run(cmd.Develop)
 	return nil
 }
 
