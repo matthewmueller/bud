@@ -8,6 +8,9 @@ import (
 	"github.com/matthewmueller/bud/di"
 	"github.com/matthewmueller/bud/logger"
 	"github.com/matthewmueller/bud/middleware"
+	"github.com/matthewmueller/bud/transpiler"
+	"github.com/matthewmueller/bud/view"
+	"github.com/matthewmueller/bud/view/gohtml"
 	"github.com/matthewmueller/bud/web"
 	"github.com/matthewmueller/bud/web/router"
 )
@@ -19,6 +22,9 @@ func Provider(in di.Injector) {
 	db.Provider(in)
 	web.Provider(in)
 	middleware.Provider(in)
+	view.Provider(in)
+	gohtml.Provider(in)
+	transpiler.Provider(in)
 	di.Provide[*serve.Command](in, serve.Provide)
 	di.Register[*cli.CLI](in, serve.Register)
 	di.Provide[*develop.Command](in, develop.Provide)

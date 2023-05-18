@@ -10,7 +10,16 @@ import (
 	"sync"
 
 	"github.com/RyanCarrier/dijkstra"
+	"github.com/matthewmueller/bud/di"
 )
+
+func Provider(in di.Injector) {
+	di.Provide[Interface](in, provide)
+}
+
+func provide(in di.Injector) (Interface, error) {
+	return New(), nil
+}
 
 // ErrNoPath is returned when there is no path between two extensions.
 var ErrNoPath = dijkstra.ErrNoPath

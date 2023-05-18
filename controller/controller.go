@@ -51,7 +51,7 @@ import (
 
 // }
 
-func Action[In, Out any](view view.Interface, fn func(*Context[In, Out]) error) http.Handler {
+func Action[In, Out any](view view.View, fn func(*Context[In, Out]) error) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := &Context[In, Out]{
 			Request: r,
@@ -65,7 +65,7 @@ func Action[In, Out any](view view.Interface, fn func(*Context[In, Out]) error) 
 
 type Context[In, Out any] struct {
 	*http.Request
-	view view.Interface
+	view view.View
 	w    http.ResponseWriter
 	Map  In
 }
