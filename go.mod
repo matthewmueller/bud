@@ -10,6 +10,7 @@ require (
 	github.com/gitchander/permutation v0.0.0-20210517125447-a5d73722e1b1
 	github.com/glebarez/go-sqlite v1.21.1
 	github.com/go-logfmt/logfmt v0.6.0
+	github.com/hexops/valast v1.4.3
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/matryer/is v1.4.1
 	github.com/matthewmueller/diff v0.0.0-20220110044814-1b370be97fd0
@@ -25,6 +26,7 @@ require (
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gedex/inflector v0.0.0-20170307190818-16278e9db813 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
@@ -35,12 +37,14 @@ require (
 	github.com/matthewmueller/text v0.0.0-20201215225457-a00346c71bb3 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	github.com/rogpeppe/go-internal v1.6.1 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	modernc.org/libc v1.22.3 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
 	modernc.org/sqlite v1.21.1 // indirect
+	mvdan.cc/gofumpt v0.4.0 // indirect
 )
