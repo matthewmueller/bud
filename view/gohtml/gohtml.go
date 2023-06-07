@@ -1,7 +1,6 @@
 package gohtml
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"html/template"
@@ -40,9 +39,32 @@ func registerRenderer(in di.Injector, renderers view.Renderers) error {
 	if err != nil {
 		return err
 	}
-	renderers["gohtml"] = renderer
+	renderers[".gohtml"] = renderer
 	return nil
 }
+
+// MustParse panics if unable to parse
+func MustParse(name, code string) *template.Template {
+	template, err := Parse(name, code)
+	if err != nil {
+		panic(err)
+	}
+	return template
+}
+
+// Parse parses Go code
+func Parse(name, code string) (*template.Template, error) {
+	return template.New(name).Parse(code)
+}
+
+// func registerRenderer(in di.Injector, renderers view.Renderers) error {
+// 	renderer, err := di.Load[*Renderer](in)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	renderers["gohtml"] = renderer
+// 	return nil
+// }
 
 func New(fsys fs.FS, log logger.Log, tr transpiler.Interface) *Renderer {
 	return &Renderer{fsys, log, tr}
@@ -56,7 +78,7 @@ type Renderer struct {
 
 var _ view.Renderer = (*Renderer)(nil)
 
-func (r *Renderer) parseTemplate(ctx context.Context, templatePath string, funcs template.FuncMap) (*template.Template, error) {
+func (r *Renderer) parseTemplate(ctx context.Context, templatePath string) (*template.Template, error) {
 	code, err := fs.ReadFile(r.fsys, templatePath)
 	if err != nil {
 		return nil, fmt.Errorf("gohtml: unable to parse template %q. %w", templatePath, err)
@@ -66,39 +88,24 @@ func (r *Renderer) parseTemplate(ctx context.Context, templatePath string, funcs
 	if err != nil {
 		return nil, fmt.Errorf("gohtml: unable to transpile %s: %w", templatePath, err)
 	}
-	tpl, err := template.New(templatePath).Funcs(funcs).Parse(string(code))
+	tpl, err := template.New(templatePath).Parse(withProps(string(code)))
 	if err != nil {
 		return nil, err
 	}
 	return tpl, nil
 }
 
-func (r *Renderer) Render(ctx context.Context, w io.Writer, files []*view.File, props any) error {
-	funcs := template.FuncMap{
-		"slot": func() template.HTML {
-			return ""
-		},
+func withProps(template string) string {
+	return `{{ with $.Props }}` + template + `{{ else }}` + template + `{{ end }}`
+}
+
+func (r *Renderer) Render(ctx context.Context, w io.Writer, path string, in *view.Input) error {
+	tpl, err := r.parseTemplate(ctx, path)
+	if err != nil {
+		return err
 	}
-	for i := len(files) - 1; i >= 0; i-- {
-		file := files[i]
-		r.log.Debugf("gohtml: parsing %s", file.Path)
-		tpl, err := r.parseTemplate(ctx, file.Path, funcs)
-		if err != nil {
-			return err
-		}
-		// Write out the last template
-		if i == 0 {
-			r.log.Debugf("gohtml: rendering %s", file.Path)
-			return tpl.Execute(w, props)
-		}
-		html := new(bytes.Buffer)
-		r.log.Debugf("gohtml: rendering %s", file.Path)
-		if err := tpl.Execute(html, props); err != nil {
-			return err
-		}
-		funcs["slot"] = func() template.HTML {
-			return template.HTML(html.String())
-		}
+	if in.Props == nil {
+		in.Props = struct{}{}
 	}
-	return nil
+	return tpl.Execute(w, in)
 }
