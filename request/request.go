@@ -6,20 +6,27 @@ import (
 	"github.com/timewasted/go-accept-headers"
 )
 
-// New request context
-func New(r *http.Request) *Context {
-	return &Context{r}
-}
+// func Wrap[In any](r *http.Request) (*Request[In], error) {
+// 	var in In
+// 	if err := Unmarshal(r, &in); err != nil {
+// 		return nil, err
+// 	}
+// 	return &Request[In]{
+// 		r:  r,
+// 		In: in,
+// 	}, nil
+// }
 
-// Context struct
-type Context struct {
-	r *http.Request
-}
+// Request struct
+// type Request[In any] struct {
+// 	r  *http.Request
+// 	In any
+// }
 
-// Unmarshal the request body or parameters
-func (c *Context) Unmarshal(r *http.Request, in interface{}) error {
-	return Unmarshal(r, in)
-}
+// // Unmarshal the request body or parameters
+// func (c *Request[In]) Unmarshal(r *http.Request, in interface{}) error {
+// 	return Unmarshal(r, in)
+// }
 
 // Accepts a type
 func Accepts(r *http.Request) Acceptable {

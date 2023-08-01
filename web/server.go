@@ -12,33 +12,26 @@ import (
 	"github.com/matthewmueller/bud/internal/signals"
 	"github.com/matthewmueller/bud/internal/socket"
 	"github.com/matthewmueller/bud/middleware"
-	"github.com/matthewmueller/bud/web/router"
+	"github.com/matthewmueller/bud/router"
+	"github.com/matthewmueller/bud/view"
 )
-
-// func provideMiddleware(in di.Injector) (middleware.Middleware, error) {
-// 	return middleware.Compose(
-// 		di.Middleware(in),
-// 	), nil
-// }
 
 type Handler = http.Handler
 type Server http.Server
 
-func Provider(in di.Injector) {
-	di.Provide[Handler](in, provideHandler)
-	di.Provide[*Server](in, provideServer)
-}
-
 func provideHandler(in di.Injector) (Handler, error) {
+	if err := di.Preload[view.Action](in); err != nil {
+		return nil, err
+	}
 	router, err := di.Load[*router.Router](in)
 	if err != nil {
 		return nil, err
 	}
-	middleware, err := di.Load[middleware.Middleware](in)
+	stack, err := di.Load[middleware.Stack](in)
 	if err != nil {
 		return nil, err
 	}
-	return middleware(router), nil
+	return stack.Middleware(router), nil
 }
 
 func provideServer(in di.Injector) (*Server, error) {
@@ -128,7 +121,7 @@ func Format(l net.Listener) string {
 // }
 
 type Request[In any] struct {
-	r *http.Request
+	// r *http.Request
 	di.Injector
 	Params In
 }

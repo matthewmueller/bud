@@ -8,10 +8,24 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/matthewmueller/bud/di"
+
 	"github.com/cespare/xxhash"
 	"github.com/matthewmueller/bud/internal/gois"
 	"github.com/matthewmueller/bud/internal/virtual"
 )
+
+func Provide(in di.Injector) (*Module, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	module, err := Find(wd)
+	if err != nil {
+		return nil, err
+	}
+	return module, nil
+}
 
 type Module struct {
 	opt  *option

@@ -7,6 +7,7 @@ require (
 	github.com/ajg/form v1.5.2-0.20200323032839-9aeb3cf462e1
 	github.com/aws/aws-sdk-go v1.44.248
 	github.com/cespare/xxhash v1.1.0
+	github.com/felixge/httpsnoop v1.0.3
 	github.com/gitchander/permutation v0.0.0-20210517125447-a5d73722e1b1
 	github.com/glebarez/go-sqlite v1.21.1
 	github.com/go-logfmt/logfmt v0.6.0

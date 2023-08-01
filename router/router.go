@@ -3,149 +3,145 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/matthewmueller/bud/di"
-	"github.com/matthewmueller/bud/router/internal/radix"
+	"github.com/matthewmueller/bud/router/radix"
 )
 
-type Route struct {
-	Method  string
-	Path    string
-	Handler http.Handler
-	Layout  http.Handler
-	Frame   http.Handler
-	Error   http.Handler
-}
-
-type Router interface {
-	http.Handler
-	Routes() []*Route
-	Set(method string, route string, handler http.Handler) error
-	Get(route string, handler http.Handler) error
-	Post(route string, handler http.Handler) error
-	Put(route string, handler http.Handler) error
-	Patch(route string, handler http.Handler) error
-	Delete(route string, handler http.Handler) error
-	Layout(route string, handler http.Handler)
-	Frame(route string, handler http.Handler)
-	Error(route string, handler http.Handler)
-}
-
 func Provider(in di.Injector) {
-	di.Provide[Router](in, provideRouter)
+	di.Provide[*Router](in, provideRouter)
 }
 
-func provideRouter(in di.Injector) (Router, error) {
+func provideRouter(in di.Injector) (*Router, error) {
 	return New(), nil
 }
 
-func New() Router {
-	return &router{
-		methods: map[string]*method{},
+// New router
+func New() *Router {
+	return &Router{
+		methods: map[string]radix.Tree{},
 	}
 }
 
-type router struct {
-	methods map[string]*method
+// Router struct
+type Router struct {
+	methods map[string]radix.Tree
 }
 
-type method struct {
-	routes map[string]*Route
-	tree   *radix.Tree
+var _ http.Handler = (*Router)(nil)
+
+// Set a handler manually
+func (rt *Router) Set(method, route string, handler http.Handler) error {
+	if !isMethod(method) {
+		return fmt.Errorf("router: %q is not a valid HTTP method", method)
+	}
+	return rt.set(method, route, handler)
 }
 
-func (r *router) Middleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		method, ok := r.methods[req.Method]
+func (rt *Router) set(method, route string, handler http.Handler) error {
+	if route == "/" {
+		return rt.insert(method, route, handler)
+	}
+	// Trim any trailing slash and lowercase the route
+	route = strings.TrimRight(strings.ToLower(route), "/")
+	return rt.insert(method, route, handler)
+}
+
+// Insert the route into the method's radix tree
+func (rt *Router) insert(method, route string, handler http.Handler) error {
+	if _, ok := rt.methods[method]; !ok {
+		rt.methods[method] = radix.New()
+	}
+	return rt.methods[method].Insert(route, handler)
+}
+
+// Get route
+func (rt *Router) Get(route string, handler http.Handler) error {
+	return rt.set(http.MethodGet, route, handler)
+}
+
+// Post route
+func (rt *Router) Post(route string, handler http.Handler) error {
+	return rt.set(http.MethodPost, route, handler)
+}
+
+// Put route
+func (rt *Router) Put(route string, handler http.Handler) error {
+	return rt.set(http.MethodPut, route, handler)
+}
+
+// Patch route
+func (rt *Router) Patch(route string, handler http.Handler) error {
+	return rt.set(http.MethodPatch, route, handler)
+}
+
+// Delete route
+func (rt *Router) Delete(route string, handler http.Handler) error {
+	return rt.set(http.MethodDelete, route, handler)
+}
+
+func (rt *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	handler := rt.Middleware(http.NotFoundHandler())
+	handler.ServeHTTP(w, r)
+}
+
+// type contextKey string
+
+// var matchKey contextKey = "match"
+
+// type Match = radix.Match
+
+// func MatchFrom(ctx context.Context) (*Match, bool) {
+// 	match, ok := ctx.Value(matchKey).(*Match)
+// 	return match, ok
+// }
+
+// Middleware implements the router middleware
+func (rt *Router) Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tree, ok := rt.methods[r.Method]
 		if !ok {
-			next.ServeHTTP(w, req)
+			next.ServeHTTP(w, r)
 			return
 		}
-		fmt.Println("got method", method)
+		// Strip any trailing slash (e.g. /users/ => /users)
+		urlPath := trimTrailingSlash(r.URL.Path)
+		// Match the path
+		match, ok := tree.Match(urlPath)
+		if !ok {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// r = r.WithContext(context.WithValue(r.Context(), matchKey, match))
+		// Add the slots
+		if len(match.Slots) > 0 {
+			query := r.URL.Query()
+			for _, slot := range match.Slots {
+				query.Set(slot.Key, slot.Value)
+			}
+			r.URL.RawQuery = query.Encode()
+		}
+		// Call the handler
+		match.Handler.ServeHTTP(w, r)
 	})
 }
 
-func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	r.Middleware(http.NotFoundHandler()).ServeHTTP(w, req)
-}
-
-func (r *router) Routes() (routes []*Route) {
-	for _, m := range r.methods {
-		for _, route := range m.routes {
-			routes = append(routes, route)
-		}
+func trimTrailingSlash(path string) string {
+	if path == "/" {
+		return path
 	}
-	return routes
+	return strings.TrimRight(path, "/")
 }
 
-func (r *router) method(name string) *method {
-	if m, ok := r.methods[name]; ok {
-		return m
+// isMethod returns true if method is a valid HTTP method
+func isMethod(method string) bool {
+	switch method {
+	case http.MethodGet, http.MethodHead, http.MethodPost,
+		http.MethodPut, http.MethodPatch, http.MethodDelete,
+		http.MethodConnect, http.MethodOptions, http.MethodTrace:
+		return true
+	default:
+		return false
 	}
-	m := &method{
-		routes: map[string]*Route{},
-		tree:   radix.New(),
-	}
-	r.methods[name] = m
-	return m
-}
-
-func (r *router) Set(method string, route string, handler http.Handler) error {
-	m := r.method(method)
-	if err := m.tree.Insert(route); err != nil {
-		return err
-	}
-	m.routes[route] = &Route{
-		Method:  method,
-		Path:    route,
-		Handler: handler,
-	}
-	return nil
-}
-
-func (r *router) Get(route string, handler http.Handler) error {
-	return r.Set(http.MethodGet, route, handler)
-}
-
-func (r *router) Post(route string, handler http.Handler) error {
-	return r.Set(http.MethodPost, route, handler)
-}
-
-func (r *router) Put(route string, handler http.Handler) error {
-	return r.Set(http.MethodPut, route, handler)
-}
-
-func (r *router) Patch(route string, handler http.Handler) error {
-	return r.Set(http.MethodPatch, route, handler)
-}
-
-func (r *router) Delete(route string, handler http.Handler) error {
-	return r.Set(http.MethodDelete, route, handler)
-}
-
-func (r *router) route(method string, route string) *Route {
-	m := r.method(method)
-	if route, ok := m.routes[route]; ok {
-		return route
-	}
-	m.routes[route] = &Route{
-		Method: method,
-		Path:   route,
-	}
-	return m.routes[route]
-}
-
-func (r *router) Layout(route string, handler http.Handler) {
-	rt := r.route(http.MethodGet, route)
-	rt.Layout = handler
-}
-
-func (r *router) Frame(route string, handler http.Handler) {
-	rt := r.route(http.MethodGet, route)
-	rt.Frame = handler
-}
-
-func (r *router) Error(route string, handler http.Handler) {
-	rt := r.route(http.MethodGet, route)
-	rt.Error = handler
 }

@@ -15,7 +15,7 @@ type Middleware = middleware.Middleware
 const sessionID = "sid"
 
 func New[Session any](cipher cipher.Cipher, store Store) Middleware {
-	return func(next http.Handler) http.Handler {
+	return middleware.Function(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie(sessionID)
 			if err != nil {
@@ -54,7 +54,7 @@ func New[Session any](cipher cipher.Cipher, store Store) Middleware {
 			}
 			// fmt.Println("got c", )
 		})
-	}
+	})
 }
 
 // func Middleware(secret string) middleware.Middleware {

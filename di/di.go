@@ -12,18 +12,20 @@ func New() Injector {
 		fns:        make(map[string]any),
 		cache:      make(map[string]any),
 		registered: make(map[string][]any),
-		// aliases:    make(map[string]string),
 	}
 }
 
+// Clone an injector
+func Clone(in Injector) Injector {
+	return in.clone()
+}
+
 type Injector interface {
+	clone() Injector
 	setProvider(name string, provider any) error
-	// addProvider(name string, provider any) error
 	register(name string, provider any) error
 	registrants(name string) (registrants []any, ok bool)
-	// alias(from, to string)
 	getProvider(name string) (provider any, ok bool)
-	// listProviders() []string
 	setCache(name string, dep any)
 	getCache(name string) (dep any, ok bool)
 }
@@ -33,10 +35,25 @@ type injector struct {
 	fns        map[string]any
 	cache      map[string]any
 	registered map[string][]any
-	// aliases    map[string]string
 }
 
 var _ Injector = (*injector)(nil)
+
+func (in *injector) clone() Injector {
+	clone := New()
+	for name, provider := range in.fns {
+		clone.setProvider(name, provider)
+	}
+	for name, dep := range in.cache {
+		clone.setCache(name, dep)
+	}
+	for name, registrants := range in.registered {
+		for _, registrant := range registrants {
+			clone.register(name, registrant)
+		}
+	}
+	return clone
+}
 
 func (in *injector) setProvider(name string, provider any) error {
 	in.mu.Lock()
@@ -44,20 +61,6 @@ func (in *injector) setProvider(name string, provider any) error {
 	in.fns[name] = provider
 	return nil
 }
-
-// func (in *injector) addProvider(name string, provider any) error {
-// 	in.mu.Lock()
-// 	defer in.mu.Unlock()
-// 	if _, ok := in.fns[name]; !ok {
-// 		in.fns[name] = []any{}
-// 	}
-// 	fns, ok := in.fns[name].([]any)
-// 	if !ok {
-// 		return fmt.Errorf("unable to add provider to %s", name)
-// 	}
-// 	in.fns[name] = append(fns, provider)
-// 	return nil
-// }
 
 func (in *injector) register(name string, provider any) error {
 	in.mu.Lock()
@@ -76,16 +79,9 @@ func (in *injector) registrants(name string) (registrants []any, ok bool) {
 	return registrants, ok
 }
 
-// func (in *injector) alias(from, to string) {
-// 	in.aliases[from] = to
-// }
-
 func (in *injector) getProvider(name string) (provider any, ok bool) {
 	in.mu.RLock()
 	defer in.mu.RUnlock()
-	// if alias, ok := in.aliases[name]; ok {
-	// 	name = alias
-	// }
 	if fn, ok := in.fns[name]; ok {
 		return fn, ok
 	}
@@ -105,15 +101,6 @@ func (in *injector) getCache(name string) (dep any, ok bool) {
 	return dep, ok
 }
 
-// func (in *injector) listProviders() (providers []string) {
-// 	in.mu.RLock()
-// 	defer in.mu.RUnlock()
-// 	for name := range in.fns {
-// 		providers = append(providers, name)
-// 	}
-// 	return providers
-// }
-
 func Provide[Dep any](in Injector, fn func(in Injector) (d Dep, err error)) error {
 	var dep Dep
 	name, err := reflector.Name(dep)
@@ -124,40 +111,16 @@ func Provide[Dep any](in Injector, fn func(in Injector) (d Dep, err error)) erro
 	return nil
 }
 
-// func Alias[From, To any](in Injector) error {
-// 	var from From
-// 	var to To
-// 	fromType := reflect.TypeOf(from)
-// 	toType := reflect.TypeOf(to)
+func Register[To any](in Injector, fn func(in Injector, to To) error) error {
+	var to To
+	name, err := reflector.Name(to)
+	if err != nil {
+		return err
+	}
+	return in.register(name, fn)
+}
 
-// 	// Check if from or to are nil
-// 	if fromType == nil {
-// 		fromType = reflect.TypeOf(&from).Elem()
-// 	}
-// 	if toType == nil {
-// 		toType = reflect.TypeOf(&to).Elem()
-// 	}
-// 	// Check if From or To is an interface
-// 	if fromType.Kind() != reflect.Interface {
-// 		return fmt.Errorf("di: From type %s is not an interface", fromType)
-// 	}
-// 	if toType.Kind() == reflect.Interface {
-// 		return fmt.Errorf("di: To type %s cannot be an interface", toType)
-// 	}
-// 	if !toType.Implements(fromType) {
-// 		return fmt.Errorf("di: unable to alias because %s does not implement %s", fromType, toType)
-// 	}
-// 	fromName, err := reflector.Name(from)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	toName, err := reflector.Name(to)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	in.alias(fromName, toName)
-// 	return nil
-// }
+var ErrNoProvider = fmt.Errorf("di: no provider")
 
 func Load[Dep any](in Injector) (dep Dep, err error) {
 	name, err := reflector.Name(dep)
@@ -169,7 +132,7 @@ func Load[Dep any](in Injector) (dep Dep, err error) {
 	}
 	v, ok := in.getProvider(name)
 	if !ok {
-		return dep, fmt.Errorf("di: no provider for %s", name)
+		return dep, fmt.Errorf("%w for %s", ErrNoProvider, name)
 	}
 	fn, ok := v.(func(in Injector) (Dep, error))
 	if !ok {
@@ -177,14 +140,14 @@ func Load[Dep any](in Injector) (dep Dep, err error) {
 	}
 	d, err := fn(in)
 	if err != nil {
-		return dep, err
+		return dep, fmt.Errorf("di: unable to load %q: %w", name, err)
 	}
 	registrants, ok := in.registrants(name)
 	if ok {
 		for _, registrant := range registrants {
 			fn, ok := registrant.(func(in Injector, dep Dep) error)
 			if !ok {
-				return dep, fmt.Errorf("di: invalid attachment for %s", name)
+				return dep, fmt.Errorf("di: invalid registrant for %s", name)
 			}
 			if err := fn(in, d); err != nil {
 				return dep, err
@@ -195,82 +158,14 @@ func Load[Dep any](in Injector) (dep Dep, err error) {
 	return d, nil
 }
 
-// func loadOne[Dep any](in Injector, name string, fn func(in Injector) (Dep, error)) (dep Dep, err error) {
-// 	d, err := fn(in)
-// 	if err != nil {
-// 		return dep, err
-// 	}
-// 	in.setCache(name, d)
-// 	return d, nil
-// }
-
-// func loadAll[Dep any](in Injector, name string, fns []func(in Injector) (Dep, error)) (dep Dep, err error) {
-// 	var deps []Dep
-// 	for _, fn := range fns {
-// 		d, err := fn(in)
-// 		if err != nil {
-// 			return dep, err
-// 		}
-// 		deps = append(deps, d)
-// 	}
-// 	in.setCache(name, deps)
-// 	return deps, nil
-// }
-
-// func Add[Dep any](in Injector, fn func(in Injector) (d Dep, err error)) error {
-// 	var dep []Dep
-// 	name, err := reflector.Name(dep)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	provider, ok := in.getProvider(name)
-// 	if !ok {
-// 		return in.setProvider(name, func(in Injector) ([]Dep, error) {
-// 			dep, err := fn(in)
-// 			return []Dep{dep}, err
-// 		})
-// 	}
-// 	fns, ok := provider.(func(in Injector) ([]Dep, error))
-// 	if !ok {
-// 		return fmt.Errorf("invalid provider for %s", name)
-// 	}
-// 	fmt.Println("got it...", fns)
-// 	// fns = append(fns, fn)
-// 	return in.setProvider(name, fns)
-// 	// return nil
-// }
-
-func Register[To any](in Injector, fn func(in Injector, to To) error) error {
-	var to To
-	name, err := reflector.Name(to)
-	if err != nil {
+// Preload is a convenience around load that allows di to cache providers
+// before they're needed.
+func Preload[Dep any](in Injector) (err error) {
+	if _, err := Load[Dep](in); err != nil {
 		return err
 	}
-	return in.register(name, fn)
+	return nil
 }
-
-// func ProvideAs[Dep, As any](in Injector, fn func(in Injector) (d Dep, err error)) error {
-// 	// dep := *new(Dep)
-// 	// as := *new(As)
-// 	// name, err := reflector.Name(dep)
-// 	// if err != nil {
-// 	// 	return err
-// 	// }
-// 	// if !reflect.TypeOf(as).Implements(reflect.TypeOf(as)) {
-// 	// 	return fmt.Errorf("di: %T does not implement %T", dep, as)
-// 	// }
-// 	// fmt.Println("got name!", name, as)
-// 	// dep.(As)
-// 	// var _ As = dep
-// 	// if _, ok := dep.(As); !ok {
-// 	// return fmt.Errorf("di: %s does not implement %s", reflector.Name(dep), reflector.Name(As))
-// 	// }
-// 	// name, err := reflector.Name(dep)
-// 	// if err != nil {
-// 	// 	return err
-// 	// }
-// 	return nil
-// }
 
 // func Print(in Injector) string {
 // 	providers := in.listProviders()

@@ -22,6 +22,14 @@ func Name[V any](v V) (string, error) {
 	return typeString, nil
 }
 
+func TypeString(t reflect.Type) (string, error) {
+	prefix, inner := innermost("", t)
+	if inner.Name() == "" {
+		return "", fmt.Errorf("%w: %s", ErrNoName, t)
+	}
+	return toString(prefix, inner), nil
+}
+
 func innermost(prefix string, t reflect.Type) (string, reflect.Type) {
 	switch t.Kind() {
 	case reflect.Ptr:

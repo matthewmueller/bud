@@ -28,3 +28,20 @@ func (f *FuncInfo) Name() string {
 	name = strings.Replace(name, ")", "", 1)
 	return name
 }
+
+func (f *FuncInfo) Path() string {
+	name := f.info.Name()
+	parts := strings.Split(name, ".")
+	return strings.Join(parts[:len(parts)-1], ".")
+}
+
+// func ModulePath(skip int) (string, error) {
+// 	pc, _, _, ok := runtime.Caller(skip)
+// 	if !ok {
+// 		return "", errors.New("unable to get the current filename")
+// 	}
+// 	info := runtime.FuncForPC(pc)
+// 	name := info.Name()
+// 	parts := strings.Split(name, ".")
+// 	return strings.Join(parts[:len(parts)-1], "."), nil
+// }

@@ -6,19 +6,29 @@ import (
 	"github.com/matthewmueller/bud/di"
 )
 
-type Middleware func(http.Handler) http.Handler
-
 func Provider(in di.Injector) {
-	di.Provide[Middleware](in, provideMiddleware)
+	di.Provide[Stack](in, provideStack)
 }
 
-func provideMiddleware(in di.Injector) (Middleware, error) {
-	return Compose(), nil
+func provideStack(in di.Injector) (Stack, error) {
+	return Stack{
+		Function(di.Middleware(in)),
+	}, nil
 }
 
-// Compose a stack of middleware into a single middleware
-func Compose(middlewares ...Middleware) Middleware {
-	return func(h http.Handler) http.Handler {
+type Function func(http.Handler) http.Handler
+
+func (f Function) Middleware(h http.Handler) http.Handler {
+	return f(h)
+}
+
+type Middleware interface {
+	Middleware(http.Handler) http.Handler
+}
+
+// compose a stack of middleware into a single middleware
+func compose(middlewares ...Middleware) Middleware {
+	return Function(func(h http.Handler) http.Handler {
 		if len(middlewares) == 0 {
 			return h
 		}
@@ -26,8 +36,14 @@ func Compose(middlewares ...Middleware) Middleware {
 			if middlewares[i] == nil {
 				continue
 			}
-			h = middlewares[i](h)
+			h = middlewares[i].Middleware(h)
 		}
 		return h
-	}
+	})
+}
+
+type Stack []Middleware
+
+func (s Stack) Middleware(h http.Handler) http.Handler {
+	return compose(s...).Middleware(h)
 }

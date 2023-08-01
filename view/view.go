@@ -46,6 +46,8 @@ type Page struct {
 	Error  *File
 }
 
+type Pages = map[string]*Page
+
 type File struct {
 	Path string
 	Key  string
@@ -198,7 +200,6 @@ func (r renderer) Render(ctx context.Context, w io.Writer, path string, in *Inpu
 // }
 
 // type Map map[string]View
-// type Pages = map[string]*view.Page
 
 // type pageView struct {
 // 	page *view.Page

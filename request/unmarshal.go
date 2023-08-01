@@ -10,12 +10,12 @@ import (
 	"github.com/ajg/form"
 )
 
-func Query[Params any](r *http.Request) (params *Params, err error) {
-	if err := Unmarshal(r, &params); err != nil {
-		return nil, err
-	}
-	return params, nil
-}
+// func Query[Params any](r *http.Request) (params *Params, err error) {
+// 	if err := Unmarshal(r, &params); err != nil {
+// 		return nil, err
+// 	}
+// 	return params, nil
+// }
 
 // Unmarshal the request data into v
 func Unmarshal(r *http.Request, v interface{}) error {
